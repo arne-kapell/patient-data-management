@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>PDM</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="">
+        <style>
+            :root {
+                --primary: seagreen;
+                --secondary: lightgray;
+              }
+            html {
+                font-family: Helvetica, Arial, sans-serif;
+            }
+            a {
+                text-decoration: none;
+                color: var(--primary);
+            }
+            button, input[type="submit"] {
+                background-color: var(--primary);
+                color: white;
+                border: 1px solid transparent;
+                border-radius: 5px;
+                padding: 10px;
+                {% comment %} font-size: 1.2rem; {% endcomment %}
+                transition: all 0.2s;
+            }
+            button:hover, input[type="submit"]:hover {
+                background-color: var(--secondary);
+                color: var(--primary);
+                border: 1px solid var(--primary);
+                cursor: pointer;
+            }
+            .card {
+                border-radius: 10px;
+                width: auto;
+                height: auto;
+                margin-bottom: 20px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+                position: relative;
+                overflow: hidden;
+                text-align: center;
+            }
+            .alert {
+                box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+                margin: 10px auto;
+                padding: 10px;
+                width: fit-content;
+            }
+            .nav-container {
+                list-style: none;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px;
+            }
+            .nav {
+                list-style: none;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0;
+                margin: 0;
+                
+            }
+            .nav li {
+                transition: all 0.3s ease;
+            }
+            .nav li:hover {
+                transform: scale(1.1);
+            }
+            .nav li.active {
+                text-decoration: overline;
+                text-decoration-color: var(--secondary);
+                text-decoration-thickness: 2px;
+            }
+            .nav li a {
+                margin: 0 10px;
+                font-weight: bold;
+                font-size: 1.2rem;
+            }
+            .error {
+                color: red;
+                background-color: rgba(255, 0, 0, 0.1);
+            }
+            .success {
+                {% comment %} color: green; {% endcomment %}
+                background-color: rgba(0, 255, 0, 0.1);
+            }
+            #footer {
+                position: absolute;
+                left: 0;
+                bottom: 0;
+                width: 100%;
+                padding: 10px;
+                border-top: 1px solid var(--primary);
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+                text-align: center;
+            }
+            {% block style %}{% endblock style %}
+        </style>
+    </head>
+    <body>
+        <div class="card" style="background: var(--primary); color: #fff;">
+            <h1>Patient Data Management</h1>
+            <h3>{% block title %}{% endblock %}</h3>
+        </div>
+        <div class="card nav-container">
+            {% comment %} render navigation {% endcomment %}
+            <ul class="nav">
+                <li {% if request.path == '/' %}class="active"{% endif %}><a href="/">Dashboard</a></li>
+                <li {% if request.path == '/docs/' %}class="active"{% endif %}><a href="/docs">Documents</a></li>
+            </ul>
+            {% if request.path != '/accounts/login/' %}
+                <div style="margin: 0 0 0 5%;">
+                    {% if user.is_authenticated %}
+                        {{ user.username }} <a href="{% url 'logout' %}"><button>Logout</button></a>
+                    {% else %}
+                        <a href="{% url 'login' %}"><button>Login</button></a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+        <div class="card">
+        {% block content %}{% endblock %}
+        </div>
+        <div id="footer">
+            <span>&copy; 2022</span>
+        </div>
+        {% block js %}{% endblock %}
+    </body>
+</html>

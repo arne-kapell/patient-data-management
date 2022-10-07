@@ -1,0 +1,10 @@
+{% extends 'pdm/main.html' %}
+
+{% block title %}Documents{% endblock %}
+{% block content %}
+<ol>
+{% for doc in documents %}
+<li><a href="/pdm/document/{{ doc.uid }}">{{ doc.uid }}</a></li>
+{% endfor %}
+</ol>
+{% endblock %}

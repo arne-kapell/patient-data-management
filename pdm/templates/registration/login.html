@@ -1,0 +1,68 @@
+{% extends "pdm/main.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block style %}
+#login-form {
+    display: flex;
+    flex-direction: column;
+    min-width:20%;
+    width: min-content;
+    margin: auto;
+}
+#login-form div {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0.5em;
+}
+{% endblock %}
+
+{% block content %}
+{% if form.errors %}
+<div class="card alert error" role="alert">
+    Wrong username or password, please try again.
+</div>
+{% endif %}
+
+{% if next %}
+    {% if user.is_authenticated %}
+    <div class="card alert error" role="alert">
+        Your account doesn't have access to this page. To proceed, please login with an account that has access.
+    </div>
+    {% else %}
+    <div class="card alert" role="alert">Please login to see this page.</div>
+    {% endif %}
+{% endif %}
+
+<form id="login-form" method="post" action="{% url 'login' %}">
+{% csrf_token %}
+<div>
+    {{ form.username.label_tag }} {{ form.username }}
+</div>
+<div>
+    {{ form.password.label_tag }} {{ form.password }}
+</div>
+{% comment %} <table>
+    <tr>
+        <td>{{ form.username.label_tag }}</td>
+        <td>{{ form.username }}</td>
+    </tr>
+    <tr>
+        <td>{{ form.password.label_tag }}</td>
+        <td>{{ form.password }}</td>
+    </tr>
+</table> {% endcomment %}
+
+<div style="justify-content: center">
+    <input type="submit" value="Login">
+    <input type="hidden" name="next" value="{{ next }}">
+</div>
+</form>
+
+{# Assumes you set up the password_reset view in your URLconf #}
+{% comment %} <p><a href="{% url 'password_reset' %}">Lost password?</a></p> {% endcomment %}
+
+{% endblock %}
