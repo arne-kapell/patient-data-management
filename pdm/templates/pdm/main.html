@@ -106,7 +106,7 @@
     <body>
         <div class="card" style="background: var(--primary); color: #fff;">
             <h1>Patient Data Management</h1>
-            <h3>{% block title %}{% endblock %}</h3>
+            <h3 id="title">{% block title %}{% endblock %}</h3>
         </div>
         <div class="card nav-container">
             {% comment %} render navigation {% endcomment %}
@@ -130,6 +130,11 @@
         <div id="footer">
             <span>&copy; 2022</span>
         </div>
+        <script>
+            window.onload = () => {
+                document.title = document.title + ' - ' + document.getElementById('title').innerText;
+            }
+        </script>
         {% block js %}{% endblock %}
     </body>
 </html>
