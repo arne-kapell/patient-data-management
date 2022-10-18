@@ -3,7 +3,7 @@ from django.db import models
 
 
 def get_upload_path(instance, filename):
-    return f"documents/{instance.owner.username}/{filename}"
+    return f"documents/{instance.owner.username}/{instance.uid}.{filename.split('.')[-1]}"
 
 
 class Document(models.Model):
@@ -12,7 +12,8 @@ class Document(models.Model):
     owner = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     pages = models.IntegerField()
     file = models.FileField(upload_to=get_upload_path)
-    upload = models.DateTimeField(auto_now_add=True)
+    description = models.TextField(blank=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
     sensitive = models.BooleanField(default=False)
 
 

@@ -20,14 +20,14 @@ def docs(request):
 
 
 @login_required
-def docView(request, doc_id):
+def download(request, doc_id):
     doc = Document.objects.get(pk=doc_id)
-    context = {
-        "uid": doc.uid,
-        "owner": doc.owner,
-        "url": doc.file.url
-    }
-    return render(request, 'pdm/document.html', context)
+    if request.user != doc.owner:
+        return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are not the owner of this document"}})
+    response = HttpResponse(doc.file)
+    response['Content-Disposition'] = 'attachment; filename="{}"'.format(
+        doc.file.name.split('/')[-1])
+    return response
 
 
 @csrf_protect
