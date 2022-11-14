@@ -27,7 +27,7 @@ SECRET_KEY = "django-insecure-43&7229&ro7_g(to0494&#is$^g=%i*fxf&0bug3)r6bdroll!
 # use env if available
 DEBUG = bool(int(os.getenv("DEBUG", default=1)))
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.herokuapp.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
 # Application definition
@@ -82,8 +82,12 @@ WSGI_APPLICATION = "patient_data_management.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        'NAME': os.environ.get('POSTGRES_NAME'),
+        'USER': os.environ.get('POSTGRES_USER'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        'HOST': 'db',
+        'PORT': 5432
     }
 }
 

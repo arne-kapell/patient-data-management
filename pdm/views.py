@@ -14,9 +14,9 @@ def index(request):
 @login_required
 def docs(request):
     docs = Document.objects.all()
-    url = docs[0].file.url
-    print(url)
-    return render(request, 'pdm/docs.html', {"documents": docs})
+    if len(docs) == 0:
+        return render(request, 'pdm/docs.html', {"docs": None})
+    return render(request, 'pdm/docs.html', {"documents": docs[0].file.url})
 
 
 @login_required

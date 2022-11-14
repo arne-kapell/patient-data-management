@@ -12,6 +12,7 @@ _class:
 -->
 <!-- Arne -->
 Projekt: Security by Design (Semester 5)
+
 # Patient Data Management System
 
 ## Sicherheitsanforderungen & Bedrohungsanalyse
@@ -20,13 +21,18 @@ Projekt: Security by Design (Semester 5)
 
 ---
 <!-- _paginate: false -->
-<!-- Arne -->
+<!--
+Arne
+Trust-Boundaries
+-->
 # Threat Modeling
+
 ![bg right:70% contain](architektur.drawio.svg)
 
 ---
 <!-- Irina -->
 # Schutzziele
+
 | Asset                      | Vertraulichkeit | Integrität | Verfügbarkeit |
 | :------------------------- | :-------------: | :--------: | :-----------: |
 | **A01**: Gesundheits-Daten |      X(1)       |    X(1)    |     X(2)      |
@@ -38,6 +44,7 @@ Projekt: Security by Design (Semester 5)
 ---
 <!-- Irina -->
 # Technologie-Stack
+
 - Django (Python) für Frontend und Backend
   - integriertes Admin-Interface
 - Datei-basierte Datenbank (SQLite)
@@ -48,6 +55,7 @@ Projekt: Security by Design (Semester 5)
 <!-- _class: lead -->
 <!-- Finn -->
 # Risiko-Register
+
 ---
 <!-- Finn -->
 # Risiko-Register (1/4)
@@ -78,6 +86,6 @@ Projekt: Security by Design (Semester 5)
 _class: lead
 paginate: false
 -->
-# Vielen Dank fürs Zuhören!
+# Vielen Dank fürs Zuhören
 
 Fragen?
