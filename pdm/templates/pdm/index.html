@@ -1,6 +1,36 @@
 {% extends 'pdm/main.html' %}
 
 {% block title %}Dashboard{% endblock %}
+{% block style %}
+.section-items {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    margin: 1rem;
+}
+.section-item {
+    width: auto;
+    min-width: 25vw;
+    margin: 0.5rem .5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+}
+{% endblock %}
 {% block content %}
-<p>{{ a }} + {{ b }}</p>
+<h2>My Documents</h2>
+<div class="section-items">
+{% for d in documents %}
+        <div class="card section-item">
+            <h3 class="card-title">{{ d.name }}</h3>
+            {% if d.sensitive %}
+            <span class="badge badge-danger" style="color: red; font-style: italic;">Sensitive</span>
+            {% endif %}
+            <p class="card-text">{{ d.description }}</p>
+            <a href="/download/{{ d.uid }}" class="btn btn-primary"><button>View</button></a>
+        </div>
+{% endfor %}
+</div>
 {% endblock %}

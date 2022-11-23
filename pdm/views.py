@@ -7,16 +7,17 @@ from .models import Document
 from django.contrib.auth import authenticate, login, logout
 
 
+@login_required
 def index(request):
-    return render(request, 'pdm/index.html', {"a": 1, "b": 2})
+    docs = list(Document.objects.filter(owner=request.user))
+    docs.sort(key=lambda x: x.uploaded_at, reverse=True)
+    return render(request, 'pdm/index.html', {"documents": docs})
 
 
 @login_required
 def docs(request):
-    docs = Document.objects.all()
-    if len(docs) == 0:
-        return render(request, 'pdm/docs.html', {"docs": None})
-    return render(request, 'pdm/docs.html', {"documents": docs[0].file.url})
+    docs = list(Document.objects.filter(owner=request.user))
+    return render(request, 'pdm/docs.html', {"documents": docs})
 
 
 @login_required
@@ -43,7 +44,6 @@ def loginPage(request):
         if user is not None:
             login(request, user)
             context['success'] = "Login successful"
-            # return redirect('index')
         else:
             print("Login failed")
             context['error'] = 'Wrong username or password'
