@@ -13,6 +13,9 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: Production
+      url: https://${{ secrets.HOST }}/pdm
     steps:
     - name: start deployment
       uses: bobheadxi/deployments@v1
@@ -42,7 +45,7 @@ jobs:
         KEY: ${{ env.SSHKEY }}
         script: |
           cd ${{ env.TARGET_PATH }}
-          docker-compose -f ${{ env.COMPOSE_FILE }} up -d --build --force-recreate --remove-orphans > ACTION_DEPLOY.log
+          docker compose -f ${{ env.COMPOSE_FILE }} up -d --build --force-recreate --remove-orphans > ACTION_DEPLOY.log
     - name: update deployment status
       uses: bobheadxi/deployments@v1
       if: always()
