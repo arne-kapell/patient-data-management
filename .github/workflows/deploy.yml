@@ -20,7 +20,7 @@ jobs:
         HOST: ${{ env.HOST }}
         USERNAME: ${{ env.USERNAME }}
         PORT: ${{ env.PORT }}
-        KEY: ${{ env.SSHKEY }}
+        KEY: ${{ env.KEY }}
       with:
         source: "."
         target: ${{ env.TARGET_PATH }}
