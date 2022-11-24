@@ -7,7 +7,7 @@ env:
   USERNAME: ${{ secrets.USERNAME }}
   PORT: ${{ secrets.PORT }}
   KEY: ${{ secrets.SSHKEY }}
-  TARGET_PATH: "/repos/pdm"
+  TARGET_PATH: "/repos/pdm/"
  
 jobs:
   deploy:
@@ -22,7 +22,7 @@ jobs:
         PORT: ${{ env.PORT }}
         KEY: ${{ env.KEY }}
       with:
-        source: "."
+        source: "./*"
         target: ${{ env.TARGET_PATH }}
  
     - name: Executing remote command
