@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: Production
-      url: https://${{ secrets.HOST }}/pdm
+      url: "https://${{ secrets.HOST }}/pdm"
     steps:
     - name: start deployment
       uses: bobheadxi/deployments@v1
