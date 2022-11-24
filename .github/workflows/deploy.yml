@@ -8,6 +8,7 @@ env:
   PORT: ${{ secrets.PORT }}
   KEY: ${{ secrets.SSHKEY }}
   TARGET_PATH: "/repos/pdm/"
+  COMPOSE_FILE: "docker-compose.prod.yml"
  
 jobs:
   deploy:
@@ -34,5 +35,4 @@ jobs:
         KEY: ${{ env.SSHKEY }}
         script: |
           cd ${{ env.TARGET_PATH }}
-          docker-compose down
-          docker-compose -f docker-compose.prod.yml up -d --build
+          docker-compose -f ${{ env.COMPOSE_FILE }} up -d --build --force-recreate --remove-orphans
