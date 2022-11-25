@@ -17,14 +17,14 @@ jobs:
       name: vps
       url: "https://${{ env.HOST }}/"
     steps:
-    - name: start deployment
-      uses: bobheadxi/deployments@v1
-      id: deployment
-      with:
-        step: start
-        token: ${{ secrets.GH_TOKEN }}
-        ref: ${{ github.ref }}
-        env: vps
+    # - name: start deployment
+    #   uses: bobheadxi/deployments@v1
+    #   id: deployment
+    #   with:
+    #     step: start
+    #     token: ${{ secrets.GH_TOKEN }}
+    #     ref: ${{ github.ref }}
+    #     env: vps
     - uses: actions/checkout@v1
     - name: Copy repository contents via scp
       uses: appleboy/scp-action@master
@@ -47,13 +47,13 @@ jobs:
         script: |
           cd ${{ env.TARGET_PATH }}
           docker compose -f ${{ env.COMPOSE_FILE }} up -d --build --force-recreate --remove-orphans > ACTION_DEPLOY.log
-    - name: update deployment status
-      uses: bobheadxi/deployments@v1
-      if: always()
-      with:
-        step: finish
-        token: ${{ secrets.GH_TOKEN }}
-        status: ${{ job.status }}
-        env: vps
-        ref: ${{ github.ref }}
-        deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+    # - name: update deployment status
+    #   uses: bobheadxi/deployments@v1
+    #   if: always()
+    #   with:
+    #     step: finish
+    #     token: ${{ secrets.GH_TOKEN }}
+    #     status: ${{ job.status }}
+    #     env: vps
+    #     ref: ${{ github.ref }}
+    #     deployment_id: ${{ steps.deployment.outputs.deployment_id }}
