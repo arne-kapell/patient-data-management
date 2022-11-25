@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: vps
-      url: "https://$HOST/pdm"
+      url: "https://$HOST/pdm/"
     steps:
     - name: start deployment
       uses: bobheadxi/deployments@v1
