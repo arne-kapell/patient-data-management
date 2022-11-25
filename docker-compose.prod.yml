@@ -23,8 +23,3 @@ services:
       - DEBUG=0
     depends_on:
       - db
-    networks:
-      - web
-networks:
-  web:
-    external: true
