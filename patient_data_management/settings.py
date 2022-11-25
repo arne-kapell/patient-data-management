@@ -50,7 +50,6 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "patient_data_management.prefixMiddleware.PrefixMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -126,12 +125,13 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
+URL_PREFIX = os.getenv("URL_PREFIX", default="")
 
-STATIC_URL = "static/"
+STATIC_URL = URL_PREFIX + "static/"
 
-# LOGIN_URL = "login"
-LOGIN_REDIRECT_URL = 'docs'
-LOGOUT_REDIRECT_URL = 'index'
+LOGIN_URL = "accounts/login/"
+LOGIN_REDIRECT_URL = LOGOUT_REDIRECT_URL = 'index'
+# LOGOUT_REDIRECT_URL = URL_PREFIX + 'index'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

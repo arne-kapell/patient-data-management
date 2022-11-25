@@ -1,5 +1,4 @@
 from django.urls import path, include
-
 from . import views
 
 urlpatterns = [
@@ -7,5 +6,5 @@ urlpatterns = [
     path('docs/', views.docs, name='docs'),
     path('download/<doc_id>', views.download, name='download'),
 
-    path('accounts/', include('django.contrib.auth.urls')),
+    path('accounts/', include('django.contrib.auth.urls'))
 ]

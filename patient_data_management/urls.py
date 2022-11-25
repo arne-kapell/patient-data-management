@@ -17,7 +17,9 @@ import os
 from django.contrib import admin
 from django.urls import path, include
 
+prefix = os.getenv("URL_PREFIX", default="")
+
 urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("", include("pdm.urls"))
+    path(prefix + "admin/", admin.site.urls),
+    path(prefix, include("pdm.urls"))
 ]
