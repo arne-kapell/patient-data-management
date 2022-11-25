@@ -35,7 +35,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.pdm.rule=Host(`cloud.arne-kapell.de`) && PathPrefix(`/pdm`)"
-      - "traefik.http.routers.pdm.middlewares=pdm-removeprefix" # Wire middleware to this router
-      - "traefik.http.middlewares.pdm-removeprefix.stripprefix.prefixes=/pdm"
-      - "traefik.http.services.pdm-svc.loadbalancer.server.port=8000" # Because Docker image "linuxserver/bookstack" exposes 2 ports: 80 and 443.
+      # - "traefik.http.routers.pdm.middlewares=pdm-removeprefix"
+      # - "traefik.http.middlewares.pdm-removeprefix.stripprefix.prefixes=/pdm"
+      - "traefik.http.routers.pdm.middlewares=pdm-addprefix"
+      - "traefik.http.middlewares.pdm-addprefix.addprefix.prefix=/pdm"
+      - "traefik.http.services.pdm-svc.loadbalancer.server.port=8000"
       - "traefik.docker.network=web"
