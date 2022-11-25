@@ -49,8 +49,8 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
-    "patient_data_management.prefixMiddleware.PrefixMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "patient_data_management.prefixMiddleware.PrefixMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
