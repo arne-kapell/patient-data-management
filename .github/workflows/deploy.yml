@@ -23,6 +23,7 @@ jobs:
       with:
         step: start
         token: ${{ secrets.GH_TOKEN }}
+        ref: ${{ github.ref }}
         env: vps
     - uses: actions/checkout@v1
     - name: Copy repository contents via scp
@@ -54,4 +55,5 @@ jobs:
         token: ${{ secrets.GH_TOKEN }}
         status: ${{ job.status }}
         env: vps
+        ref: ${{ github.ref }}
         deployment_id: ${{ steps.deployment.outputs.deployment_id }}
