@@ -3,7 +3,7 @@ name: Deploy to VPS
 on: [push, pull_request, workflow_dispatch]
 
 env:
-  HOST: ${{ secrets.HOST }}
+  HOST: cloud.arne-kapell.de
   USERNAME: ${{ secrets.USERNAME }}
   PORT: ${{ secrets.PORT }}
   KEY: ${{ secrets.SSHKEY }}
