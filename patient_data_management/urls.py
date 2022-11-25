@@ -17,9 +17,7 @@ import os
 from django.contrib import admin
 from django.urls import path, include
 
-prefix = "/pdm" if not os.getenv("DEBUG", default=1) else ""
-
 urlpatterns = [
-    path(prefix + "admin/", admin.site.urls),
-    path(prefix, include("pdm.urls"))
+    path("admin/", admin.site.urls),
+    path("", include("pdm.urls"))
 ]
