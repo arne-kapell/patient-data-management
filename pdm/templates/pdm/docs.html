@@ -31,7 +31,8 @@
         <span class="badge badge-danger" style="margin-right: 2rem; color: red; font-weight: bold;">Sensitive</span>
         {% endif %}
         <span style="margin-right: 2rem;">{{ doc.uploaded_at }}</span>
-        <a href="/download/{{ doc.uid }}"><button>View</button></a>
+        <a href="/preview/{{ doc.uid }}" target="_blank"><button>View</button></a>
+        <a href="/download/{{ doc.uid }}" style="margin-left: 10px;"><button class="secondary">Download</button></a>
         <a href="/delete/{{ doc.uid }}" style="margin-left: 10px;"><button class="warning">Delete</button></a>
     </div>
     {% endfor %}

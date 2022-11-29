@@ -2,7 +2,7 @@ import os
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect
-from django.http import HttpResponse
+from django.http import HttpResponse, FileResponse, StreamingHttpResponse
 from django.conf import settings
 
 from .models import Document
@@ -46,14 +46,38 @@ def upload(request):
 
 
 @login_required
+def preview(request, doc_id):
+    doc = Document.objects.get(pk=doc_id)
+    if doc.owner != request.user:
+        return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "message": "You do not have permission to view this document"}})
+    # return FileResponse(open(doc.file.path, 'rb'), as_attachment=False, filename=doc.name)
+
+    def get_type(filename):
+        ext = filename.split('.')[-1]
+        if ext == 'pdf':
+            return 'application/pdf'
+        elif ext == 'docx':
+            return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        elif ext == 'doc':
+            return 'application/msword'
+        elif ext == 'odt':
+            return 'application/vnd.oasis.opendocument.text'
+        elif ext == 'jpg' or ext == 'jpeg':
+            return 'image/jpeg'
+        elif ext == 'png':
+            return 'image/png'
+        else:
+            return 'application/octet-stream'
+
+    return StreamingHttpResponse(open(doc.file.path, 'rb'), content_type=get_type(doc.file.path), headers={'Content-Disposition': 'inline; filename=' + doc.name})
+
+
+@login_required
 def download(request, doc_id):
     doc = Document.objects.get(pk=doc_id)
     if request.user != doc.owner:
         return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are not the owner of this document"}})
-    response = HttpResponse(doc.file)
-    response['Content-Disposition'] = 'attachment; filename="{}"'.format(
-        doc.file.name.split('/')[-1])
-    return response
+    return FileResponse(open(doc.file.path, 'rb'), as_attachment=False, filename=doc_id)
 
 
 @login_required

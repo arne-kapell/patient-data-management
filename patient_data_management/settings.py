@@ -27,7 +27,7 @@ SECRET_KEY = "django-insecure-43&7229&ro7_g(to0494&#is$^g=%i*fxf&0bug3)r6bdroll!
 # use env if available
 DEBUG = bool(int(os.getenv("DEBUG", default=0)))
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'cloud.arne-kapell.de']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', 'cloud.arne-kapell.de']
 
 
 # Application definition
@@ -132,6 +132,9 @@ STATIC_URL = URL_PREFIX + "static/"
 LOGIN_URL = "accounts/login/"
 LOGIN_REDIRECT_URL = LOGOUT_REDIRECT_URL = 'index'
 # LOGOUT_REDIRECT_URL = URL_PREFIX + 'index'
+
+SESSION_COOKIE_AGE = 30 * 60  # in seconds (30 minutes)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
