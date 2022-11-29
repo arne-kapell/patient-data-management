@@ -4,7 +4,9 @@ from . import views
 urlpatterns = [
     path('', views.index, name='index'),
     path('docs/', views.docs, name='docs'),
+    path('upload/', views.upload, name='upload'),
     path('download/<doc_id>', views.download, name='download'),
+    path('delete/<doc_id>', views.deleteDoc, name='delete'),
 
     path('accounts/', include('django.contrib.auth.urls'))
 ]

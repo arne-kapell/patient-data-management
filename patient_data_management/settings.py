@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-43&7229&ro7_g(to0494&#is$^g=%i*fxf&0bug3)r6bdroll!
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # use env if available
-DEBUG = bool(int(os.getenv("DEBUG", default=1)))
+DEBUG = bool(int(os.getenv("DEBUG", default=0)))
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'cloud.arne-kapell.de']
 
@@ -137,3 +137,13 @@ LOGIN_REDIRECT_URL = LOGOUT_REDIRECT_URL = 'index'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+ACCEPTED_DOCUMENT_EXTENSIONS = [
+    "pdf",
+    "docx",
+    "doc",
+    "odt",
+    "jpg",
+    "jpeg",
+    "png"
+]

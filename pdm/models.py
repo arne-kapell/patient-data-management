@@ -11,7 +11,7 @@ class Document(models.Model):
         primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
     owner = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    pages = models.IntegerField()
+    pages = models.IntegerField(default=0)
     file = models.FileField(upload_to=get_upload_path)
     description = models.TextField(blank=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)

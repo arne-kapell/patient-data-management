@@ -34,6 +34,26 @@
                 border: 1px solid var(--primary);
                 cursor: pointer;
             }
+            button.secondary {
+                background-color: var(--secondary);
+                color: var(--primary);
+                border: 1px solid var(--secondary);
+            }
+            button.secondary:hover {
+                background-color: var(--primary);
+                color: white;
+                border: 1px solid var(--primary);
+            }
+            button.warning {
+                background-color: red;
+                color: white;
+                border: 1px solid red;
+            }
+            button.warning:hover {
+                background-color: var(--secondary);
+                color: red;
+                border: 1px solid red;
+            }
             .card {
                 border-radius: 10px;
                 width: auto;
@@ -100,6 +120,12 @@
                 box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
                 text-align: center;
             }
+            #add-doc-btn {
+                position: absolute;
+                top: 0;
+                right: 0;
+                margin: 10px;
+            }
             {% block style %}{% endblock style %}
         </style>
     </head>
@@ -128,7 +154,7 @@
         {% block content %}{% endblock %}
         </div>
         <div id="footer">
-            <span>&copy; 2022</span>
+            <span>&copy; 2022 &#8212; PDM Systems</span>
         </div>
         <script>
             window.onload = () => {

@@ -1,0 +1,13 @@
+{% extends 'pdm/main.html' %}
+
+{% block title %}Upload Document{% endblock %}
+{% block style %}
+{% endblock %}
+{% block content %}
+<h2>Upload Document</h2>
+<span class="upload-error">{{ upload_error }}</span>
+<form action="/upload/" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" accept="{{ allowed }}" name="file" />
+    <input type="submit" value="Upload" />
+{% endblock %}

@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect
 from django.http import HttpResponse
+from django.conf import settings
 
 from .models import Document
 from django.contrib.auth import authenticate, login, logout
@@ -18,7 +19,30 @@ def index(request):
 @login_required
 def docs(request):
     docs = list(Document.objects.filter(owner=request.user))
-    return render(request, 'pdm/docs.html', {"documents": docs})
+    status = request.session.pop("status", None)
+    return render(request, 'pdm/docs.html', {"documents": docs, "status": status or ""})
+
+
+@login_required
+@csrf_protect
+def upload(request):
+    error_message = None
+    if request.method == 'POST':
+        if 'file' in request.FILES:
+            file = request.FILES['file']
+            file_format: str = file.name.split('.')[-1]
+            allowed: list = settings.ACCEPTED_DOCUMENT_EXTENSIONS
+            if file_format.lower() in allowed and file.size <= 10000000:
+                doc = Document(owner=request.user, file=file,
+                               name=file.name[:-len(file_format)-1])
+                doc.save()
+                request.session['status'] = "Successfully uploaded document"
+                return redirect('docs')
+            else:
+                error_message = "File is not allowed or too big"
+        else:
+            error_message = 'No file selected'
+    return render(request, 'pdm/new-doc.html', {"upload_error": error_message or "", "allowed": ", ".join(["." + e for e in settings.ACCEPTED_DOCUMENT_EXTENSIONS])})
 
 
 @login_required
@@ -32,6 +56,16 @@ def download(request, doc_id):
     return response
 
 
+@login_required
+def deleteDoc(request, doc_id):
+    doc = Document.objects.get(pk=doc_id)
+    if request.user != doc.owner:
+        return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are not the owner of this document"}})
+    doc.delete()
+    request.session['status'] = "Successfully deleted document"
+    return redirect('docs')
+
+
 @csrf_protect
 def loginPage(request):
     context = {}
@@ -40,7 +74,6 @@ def loginPage(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
-        print(username, password)
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)

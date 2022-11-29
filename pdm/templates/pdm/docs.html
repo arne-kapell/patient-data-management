@@ -18,17 +18,25 @@
 }
 {% endblock %}
 {% block content %}
+<span id="status" style="margin: 10px; font-style: italic; display: block;">{{ status }}</span>
+<h2>Documents</h2>
+<a href="/upload" id="add-doc-btn"><button>Add Document</button></a>
 <div id="doc-list">
-{% for doc in documents %}
-<div class="card doc-row">
-    <h3 style="margin: 0;">{{ doc.name }}</h3>
-    <span style="flex-grow: 1; margin: 0 2rem; text-align: start;">{{ doc.description }}</span>
-    {% if doc.sensitive %}
-    <span class="badge badge-danger" style="margin-right: 2rem; color: red; font-weight: bold;">Sensitive</span>
-    {% endif %}
-    <span style="margin-right: 2rem;">{{ doc.uploaded_at }}</span>
-    <a href="/download/{{ doc.uid }}"><button>View</button></a>
-</div>
-{% endfor %}
+{% if documents|length > 0 %}
+    {% for doc in documents %}
+    <div class="card doc-row">
+        <h3 style="margin: 0;">{{ doc.name }}</h3>
+        <span style="flex-grow: 1; margin: 0 2rem; text-align: start;">{{ doc.description }}</span>
+        {% if doc.sensitive %}
+        <span class="badge badge-danger" style="margin-right: 2rem; color: red; font-weight: bold;">Sensitive</span>
+        {% endif %}
+        <span style="margin-right: 2rem;">{{ doc.uploaded_at }}</span>
+        <a href="/download/{{ doc.uid }}"><button>View</button></a>
+        <a href="/delete/{{ doc.uid }}" style="margin-left: 10px;"><button class="warning">Delete</button></a>
+    </div>
+    {% endfor %}
+{% else %}
+    <p style="font-style: italic;">No documents found.</p>
+{% endif %}
 </div>
 {% endblock %}

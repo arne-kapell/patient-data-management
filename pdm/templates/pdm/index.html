@@ -21,16 +21,21 @@
 {% endblock %}
 {% block content %}
 <h2>My Documents</h2>
+<a href="/upload" id="add-doc-btn"><button>Add Document</button></a>
 <div class="section-items">
-{% for d in documents %}
-        <div class="card section-item">
-            <h3 class="card-title">{{ d.name }}</h3>
-            {% if d.sensitive %}
-            <span class="badge badge-danger" style="color: red; font-style: italic;">Sensitive</span>
-            {% endif %}
-            <p class="card-text">{{ d.description }}</p>
-            <a href="/download/{{ d.uid }}" class="btn btn-primary"><button>View</button></a>
-        </div>
-{% endfor %}
+{% if documents|length > 0 %}
+    {% for d in documents %}
+    <div class="card section-item">
+        <h3 class="card-title">{{ d.name }}</h3>
+        {% if d.sensitive %}
+        <span class="badge badge-danger" style="color: red; font-style: italic;">Sensitive</span>
+        {% endif %}
+        <p class="card-text">{{ d.description }}</p>
+        <a href="/download/{{ d.uid }}" class="btn btn-primary"><button>View</button></a>
+    </div>
+    {% endfor %}
+{% else %}
+    <p>You currently have no documents.</p>
+{% endif %}
 </div>
 {% endblock %}
