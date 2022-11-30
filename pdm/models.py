@@ -2,7 +2,7 @@ import uuid
 from django.db import models
 
 
-def get_upload_path(instance, filename):
+def get_upload_path(instance: any, filename: str) -> str:
     return f"documents/{instance.owner.username}/{instance.uid}.{filename.split('.')[-1]}"
 
 

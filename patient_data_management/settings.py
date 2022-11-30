@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
+from base64 import b64decode, b64encode
 import os
 from pathlib import Path
 
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     # 'whitenoise.runserver_nostatic',
     "django.contrib.staticfiles",
+    "encrypted_files"
 ]
 
 MIDDLEWARE = [
@@ -150,3 +152,12 @@ ACCEPTED_DOCUMENT_EXTENSIONS = [
     "jpeg",
     "png"
 ]
+
+FILE_UPLOAD_HANDLERS = [
+    "encrypted_files.uploadhandler.EncryptedFileUploadHandler",
+    "django.core.files.uploadhandler.MemoryFileUploadHandler",
+    "django.core.files.uploadhandler.TemporaryFileUploadHandler"
+]
+
+AES_KEY = b64decode(os.getenv("DOCUMENT_ENCRYPTION_KEY",
+                    default=b64encode(os.urandom(32))))

@@ -1,9 +1,10 @@
-import os
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect
-from django.http import HttpResponse, FileResponse, StreamingHttpResponse
+from django.http import FileResponse, StreamingHttpResponse
 from django.conf import settings
+from encrypted_files.base import EncryptedFile
+from django.views.decorators.csrf import csrf_protect
 
 from .models import Document
 from django.contrib.auth import authenticate, login, logout
@@ -32,7 +33,7 @@ def upload(request):
             file = request.FILES['file']
             file_format: str = file.name.split('.')[-1]
             allowed: list = settings.ACCEPTED_DOCUMENT_EXTENSIONS
-            if file_format.lower() in allowed and file.size <= 10000000:
+            if file_format.lower() in allowed and file.size <= 10000000:  # 10 MB
                 doc = Document(owner=request.user, file=file,
                                name=file.name[:-len(file_format)-1])
                 doc.save()
@@ -50,7 +51,6 @@ def preview(request, doc_id):
     doc = Document.objects.get(pk=doc_id)
     if doc.owner != request.user:
         return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "message": "You do not have permission to view this document"}})
-    # return FileResponse(open(doc.file.path, 'rb'), as_attachment=False, filename=doc.name)
 
     def get_type(filename):
         ext = filename.split('.')[-1]
@@ -68,8 +68,7 @@ def preview(request, doc_id):
             return 'image/png'
         else:
             return 'application/octet-stream'
-
-    return StreamingHttpResponse(open(doc.file.path, 'rb'), content_type=get_type(doc.file.path), headers={'Content-Disposition': 'inline; filename=' + doc.name})
+    return StreamingHttpResponse(EncryptedFile(doc.file), content_type=get_type(doc.file.path), headers={'Content-Disposition': 'inline; filename=' + doc.name})
 
 
 @login_required
@@ -77,7 +76,7 @@ def download(request, doc_id):
     doc = Document.objects.get(pk=doc_id)
     if request.user != doc.owner:
         return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are not the owner of this document"}})
-    return FileResponse(open(doc.file.path, 'rb'), as_attachment=False, filename=doc_id)
+    return FileResponse(EncryptedFile(doc.file), as_attachment=True, filename=doc_id + "." + doc.file.path.split('.')[-1])
 
 
 @login_required
@@ -85,6 +84,7 @@ def deleteDoc(request, doc_id):
     doc = Document.objects.get(pk=doc_id)
     if request.user != doc.owner:
         return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are not the owner of this document"}})
+    doc.file.delete()
     doc.delete()
     request.session['status'] = "Successfully deleted document"
     return redirect('docs')

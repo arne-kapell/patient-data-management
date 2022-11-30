@@ -30,5 +30,6 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - DEBUG=1
+      - DOCUMENT_ENCRYPTION_KEY=elRm7Dkq755tSR9t3jQ6U4kqHPsvB8CndGK7laroqQA=
     depends_on:
       - db
