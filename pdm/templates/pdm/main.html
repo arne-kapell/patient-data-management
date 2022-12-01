@@ -93,9 +93,11 @@
                 transform: scale(1.1);
             }
             .nav li.active {
-                text-decoration: overline;
+                {% comment %} text-decoration: overline;
                 text-decoration-color: var(--secondary);
-                text-decoration-thickness: 2px;
+                text-decoration-thickness: 2px; {% endcomment %}
+                {% comment %} transform: scale(1.1); {% endcomment %}
+                text-shadow: 0 0 25px #000;
             }
             .nav li a {
                 margin: 0 10px;
@@ -127,11 +129,13 @@
                 margin: 10px;
             }
             .blurred {
-                filter: blur(5px);
-                transition: filter 0.3s ease;
+                filter: blur(4px);
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+                transition: all 0.2s ease;
             }
             .blurred:hover {
                 filter: blur(0);
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             }
             {% block style %}{% endblock style %}
         </style>
@@ -147,19 +151,20 @@
                 <li {% if request.path == '/' %}class="active"{% endif %}><a href="/">Dashboard</a></li>
                 <li {% if request.path == '/docs/' %}class="active"{% endif %}><a href="/docs">Documents</a></li>
             </ul>
-            {% if request.path != '/accounts/login/' %}
-                <div style="margin: 0 0 0 5%;">
-                    {% if user.is_authenticated %}
-                        <span style="margin-right: 10px;">{{ user.last_name }}, {{ user.first_name }}</span>
-                        {% if user.is_staff %}
-                        <a href="/admin/"><button class="secondary">Admin</button></a>
-                        {% endif %}
-                        <a href="{% url 'logout' %}"><button>Logout</button></a>
-                    {% else %}
-                        <a href="{% url 'login' %}"><button>Login</button></a>
+            <div style="margin: 0 0 0 5%;">
+                {% if user.is_authenticated %}
+                    {% if user.last_name and user.first_name %}
+                    <span style="margin-right: 10px;">{{ user.last_name }}, {{ user.first_name }}</span>
                     {% endif %}
-                </div>
-            {% endif %}
+                    {% if user.is_staff %}
+                    <a href="/admin/"><button>Admin</button></a>
+                    {% endif %}
+                    <a href="{% url 'logout' %}"><button class="secondary">Logout</button></a>
+                {% else %}
+                    <a href="{% url 'login' %}"><button>Login</button></a>
+                    <a href="{% url 'register' %}"><button class="secondary">Register</button></a>
+                {% endif %}
+            </div>
         </div>
         <div class="card">
         {% block content %}{% endblock %}

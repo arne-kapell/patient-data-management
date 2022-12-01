@@ -4,10 +4,11 @@ from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
 
 from pdm.managers import UserManager
+from pdm.tools import getUsersDocFolder
 
 
 def get_upload_path(instance: any, filename: str) -> str:
-    return f"documents/{instance.owner.username}/{instance.uid}.{filename.split('.')[-1]}"
+    return f"{getUsersDocFolder(instance.owner)}{instance.uid}.{filename.split('.')[-1]}"
 
 
 class Document(models.Model):
@@ -32,9 +33,13 @@ class Note(models.Model):
 
 
 class AccessRequest(models.Model):
-    document = models.ForeignKey(Document, on_delete=models.CASCADE)
+    patient = models.ForeignKey(
+        'User', on_delete=models.CASCADE, related_name="patient")
     requested_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey('User', on_delete=models.CASCADE)
+    doctor = models.ForeignKey(
+        'User', on_delete=models.CASCADE, related_name="doctor")
+    period_start = models.DateField()
+    period_end = models.DateField()
     approved = models.BooleanField(default=False)
     approved_at = models.DateTimeField(null=True)
 

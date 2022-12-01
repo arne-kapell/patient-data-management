@@ -1,4 +1,4 @@
-import hashlib
+import os
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect
@@ -11,6 +11,8 @@ from pdm.models import Document, User
 from django.contrib.auth import authenticate, login, logout
 
 from django.utils.translation import gettext_lazy as _
+
+from pdm.tools import extractPageNumber
 
 
 @login_required
@@ -33,7 +35,8 @@ def upload(request):
     error_message = None
     if request.method == 'POST':
         if 'file' in request.FILES:
-            sensitive = request.POST.get('is_sensitive', False)
+            sensitive = bool(request.POST.get('is_sensitive', False))
+            print(sensitive)
             file = request.FILES['file']
             file_format: str = file.name.split('.')[-1]
             allowed: list = settings.ACCEPTED_DOCUMENT_EXTENSIONS
@@ -42,6 +45,21 @@ def upload(request):
                                name=file.name[:-len(file_format)-1], sensitive=sensitive)
                 doc.save()
                 request.session['status'] = "Successfully uploaded document"
+                try:
+                    tmp_path = "documents/tmp/"
+                    tmp = f"{tmp_path}exif.{file_format}"
+                    os.mkdir("documents/tmp")
+                    with open(tmp, "wb") as f:
+                        efile = EncryptedFile(doc.file).read()
+                        f.write(efile)
+                    pages = extractPageNumber(tmp)
+                    os.unlink(tmp)
+                    os.rmdir(tmp_path)
+                    doc.pages = pages
+                    doc.save()
+                except Exception as e:
+                    print(e)
+                    pass
                 return redirect('docs')
             else:
                 error_message = "File is not allowed or too big"
@@ -56,23 +74,20 @@ def preview(request, doc_id):
     if doc.owner != request.user:
         return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "message": "You do not have permission to view this document"}})
 
+    if doc.file.name.split('.')[-1].lower() in settings.NO_PREVIEW_DOCUMENT_EXTENSIONS:
+        return redirect('download', doc_id=doc_id)
+
     def get_type(filename):
         ext = filename.split('.')[-1]
         if ext == 'pdf':
             return 'application/pdf'
-        elif ext == 'docx':
-            return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-        elif ext == 'doc':
-            return 'application/msword'
-        elif ext == 'odt':
-            return 'application/vnd.oasis.opendocument.text'
         elif ext == 'jpg' or ext == 'jpeg':
             return 'image/jpeg'
         elif ext == 'png':
             return 'image/png'
         else:
             return 'application/octet-stream'
-    return StreamingHttpResponse(EncryptedFile(doc.file), content_type=get_type(doc.file.path), headers={'Content-Disposition': 'inline; filename=' + doc.name})
+    return StreamingHttpResponse(EncryptedFile(doc.file), content_type=get_type(doc.file.path), headers={'Content-Disposition': 'inline; filename=' + doc.name + '.' + doc.file.name.split('.')[-1]})
 
 
 @login_required
@@ -113,13 +128,14 @@ def loginPage(request):
 
 @csrf_protect
 def registerPage(request):
+    _
     context = {
         "form": [
             {"id": "mail", "type": "email", "label": _("email address"), "placeholder": _(
                 "Enter email"), "required": True, "value": "", "autofocus": True},
             {"id": "password", "type": "password", "label": _("password"), "placeholder": _(
                 "Enter password"), "required": True, "value": ""},
-            {"id": "password2", "type": "password", "label": _("password again"), "placeholder": _(
+            {"id": "password2", "type": "password", "label": _("repeat password"), "placeholder": _(
                 "Repeat password"), "required": True, "value": ""},
             {"id": "first_name", "type": "text", "label": _("first name"), "placeholder": _(
                 "Enter first name"), "required": False, "value": ""},

@@ -132,7 +132,7 @@ URL_PREFIX = os.getenv("URL_PREFIX", default="")
 
 STATIC_URL = URL_PREFIX + "static/"
 
-LOGIN_URL = "accounts/login/"
+LOGIN_URL = URL_PREFIX + "/accounts/login/"
 LOGIN_REDIRECT_URL = LOGOUT_REDIRECT_URL = 'index'
 # LOGOUT_REDIRECT_URL = URL_PREFIX + 'index'
 
@@ -152,6 +152,11 @@ ACCEPTED_DOCUMENT_EXTENSIONS = [
     "jpg",
     "jpeg",
     "png"
+]
+NO_PREVIEW_DOCUMENT_EXTENSIONS = [
+    "docx",
+    "doc",
+    "odt"
 ]
 
 FILE_UPLOAD_HANDLERS = [

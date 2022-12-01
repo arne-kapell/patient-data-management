@@ -26,10 +26,10 @@
     {% for doc in documents %}
     <div class="card doc-row{% if doc.sensitive %} blurred{% endif %}">
         <h3 style="margin: 0;">{{ doc.name }}</h3>
+        {% if doc.pages > 0 %}
+        <span style="margin-left: 1rem;">{{ doc.pages }} Page{% if doc.pages > 1 %}s{% endif %}</span>
+        {% endif %}
         <span style="flex-grow: 1; margin: 0 2rem; text-align: start;">{{ doc.description }}</span>
-        {% comment %} {% if doc.sensitive %}
-        <span class="badge badge-danger" style="margin-right: 2rem; color: red; font-weight: bold;">Sensitive</span>
-        {% endif %} {% endcomment %}
         <span style="margin-right: 2rem;">{{ doc.uploaded_at }}</span>
         <a href="/preview/{{ doc.uid }}" target="_blank"><button>View</button></a>
         <a href="/download/{{ doc.uid }}" style="margin-left: 10px;"><button class="secondary">Download</button></a>

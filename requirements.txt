@@ -14,3 +14,4 @@ tomli==2.0.1
 whitenoise==6.2.0
 psycopg2-binary==2.9.4
 django_encrypted_files==0.0.10
+PyExifTool==0.5.4
