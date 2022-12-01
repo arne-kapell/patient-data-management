@@ -7,9 +7,10 @@ from django.conf import settings
 from encrypted_files.base import EncryptedFile
 from django.views.decorators.csrf import csrf_protect
 
-from .models import Document
-from django.contrib.auth.models import User
+from pdm.models import Document, User
 from django.contrib.auth import authenticate, login, logout
+
+from django.utils.translation import gettext_lazy as _
 
 
 @login_required
@@ -32,12 +33,13 @@ def upload(request):
     error_message = None
     if request.method == 'POST':
         if 'file' in request.FILES:
+            sensitive = request.POST.get('is_sensitive', False)
             file = request.FILES['file']
             file_format: str = file.name.split('.')[-1]
             allowed: list = settings.ACCEPTED_DOCUMENT_EXTENSIONS
             if file_format.lower() in allowed and file.size <= 10000000:  # 10 MB
                 doc = Document(owner=request.user, file=file,
-                               name=file.name[:-len(file_format)-1])
+                               name=file.name[:-len(file_format)-1], sensitive=sensitive)
                 doc.save()
                 request.session['status'] = "Successfully uploaded document"
                 return redirect('docs')
@@ -105,9 +107,44 @@ def loginPage(request):
             login(request, user)
             context['success'] = "Login successful"
         else:
-            print("Login failed")
             context['error'] = 'Wrong username or password'
     return render(request, 'pdm/login.html', context)
+
+
+@csrf_protect
+def registerPage(request):
+    context = {
+        "form": [
+            {"id": "mail", "type": "email", "label": _("email address"), "placeholder": _(
+                "Enter email"), "required": True, "value": "", "autofocus": True},
+            {"id": "password", "type": "password", "label": _("password"), "placeholder": _(
+                "Enter password"), "required": True, "value": ""},
+            {"id": "password2", "type": "password", "label": _("password again"), "placeholder": _(
+                "Repeat password"), "required": True, "value": ""},
+            {"id": "first_name", "type": "text", "label": _("first name"), "placeholder": _(
+                "Enter first name"), "required": False, "value": ""},
+            {"id": "last_name", "type": "text", "label": _("last name"), "placeholder": _(
+                "Enter last name"), "required": False, "value": ""},
+        ]
+    }
+    if request.user.is_authenticated:
+        return redirect('index')
+    if request.method == 'POST':
+        email = request.POST['mail']
+        password = request.POST['password']
+        password2 = request.POST['password2']
+        first_name = request.POST['first_name']
+        last_name = request.POST['last_name']
+        if password != password2:
+            context['error'] = "Passwords do not match"
+        elif User.objects.filter(email=email).exists():
+            context['error'] = "Email already in use"
+        else:
+            user = User.objects.create_user(
+                email=email, password=password, first_name=first_name, last_name=last_name)
+            user.save()
+            return redirect('login')
+    return render(request, 'registration/register.html', context)
 
 
 @login_required

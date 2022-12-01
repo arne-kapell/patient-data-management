@@ -1,6 +1,9 @@
 import uuid
 from django.db import models
-from django.contrib.auth.models import AbstractUser, User as DjangoUser
+from django.contrib.auth.models import AbstractUser
+from django.utils.translation import gettext_lazy as _
+
+from pdm.managers import UserManager
 
 
 def get_upload_path(instance: any, filename: str) -> str:
@@ -37,7 +40,13 @@ class AccessRequest(models.Model):
 
 
 class User(AbstractUser):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    username = None
+    email = models.EmailField(_('email address'), unique=True)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    # Role choices
     PATIENT = 1
     DOCTOR = 2
     VERIFICATOR = 3
@@ -48,5 +57,14 @@ class User(AbstractUser):
         (VERIFICATOR, 'Verificator')
     )
 
-    role = models.CharField(max_length=20, choices=ROLES, default=PATIENT)
+    role = models.PositiveSmallIntegerField(choices=ROLES, default=PATIENT)
     verified = models.BooleanField(default=False)
+
+    objects = UserManager()
+
+    def save(self, *args, **kwargs):
+        if self.role == User.VERIFICATOR:
+            self.is_staff = True  # TODO: remove and implement in UI
+        elif not self.is_superuser:
+            self.is_staff = False
+        super().save(*args, **kwargs)

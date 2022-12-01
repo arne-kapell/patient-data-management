@@ -2,12 +2,21 @@
 
 {% block title %}Upload Document{% endblock %}
 {% block style %}
+#upload-form {
+    margin: 5%;
+    {% comment %} display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 50vh;
+    justify-content: space-around; {% endcomment %}
+}
 {% endblock %}
 {% block content %}
 <h2>Upload Document</h2>
 <span class="upload-error">{{ upload_error }}</span>
-<form action="/upload/" method="post" enctype="multipart/form-data" style="margin: 5%;">
+<form action="/upload/" method="post" enctype="multipart/form-data" id="upload-form">
     {% csrf_token %}
-    <input type="file" accept="{{ allowed }}" name="file" />
-    <input type="submit" value="Upload" />
+    <input type="file" accept="{{ allowed }}" name="file" style="margin-bottom: 10px;" />
+    <input type="submit" value="Upload" style="margin-bottom: 10px;" /><br />
+    <span style="max-width: 50%;"><input type="checkbox" name="is_sensitive" value="0">This document is sensitive and is not to be shared with anyone that I have not explicitly given permission to view it.</input></span>
 {% endblock %}

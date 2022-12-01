@@ -37,6 +37,7 @@
     {% endif %}
 {% endif %}
 
+<h2>Login to your account</h2>
 <form id="login-form" method="post" action="{% url 'login' %}">
 {% csrf_token %}
 <div>
@@ -45,16 +46,6 @@
 <div>
     {{ form.password.label_tag }} {{ form.password }}
 </div>
-{% comment %} <table>
-    <tr>
-        <td>{{ form.username.label_tag }}</td>
-        <td>{{ form.username }}</td>
-    </tr>
-    <tr>
-        <td>{{ form.password.label_tag }}</td>
-        <td>{{ form.password }}</td>
-    </tr>
-</table> {% endcomment %}
 
 <div style="justify-content: center">
     <input type="submit" value="Login">
@@ -64,5 +55,6 @@
 
 {# Assumes you set up the password_reset view in your URLconf #}
 {% comment %} <p><a href="{% url 'password_reset' %}">Lost password?</a></p> {% endcomment %}
+<p>Don't have an account yet? <a href="{% url 'register' %}">Register here.</a></p>
 
 {% endblock %}

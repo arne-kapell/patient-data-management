@@ -10,4 +10,5 @@ urlpatterns = [
     path('delete/<doc_id>', views.deleteDoc, name='delete'),
 
     path('accounts/', include('django.contrib.auth.urls')),
+    path('accounts/register/', views.registerPage, name='register'),
 ]

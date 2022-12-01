@@ -25,13 +25,13 @@
 <div class="section-items">
 {% if documents|length > 0 %}
     {% for d in documents %}
-    <div class="card section-item">
+    <div class="card section-item{% if d.sensitive %} blurred{% endif %}">
         <h3 class="card-title">{{ d.name }}</h3>
-        {% if d.sensitive %}
-        <span class="badge badge-danger" style="color: red; font-style: italic;">Sensitive</span>
-        {% endif %}
         <p class="card-text">{{ d.description }}</p>
-        <a href="/preview/{{ d.uid }}" target="_blank"><button>View</button></a>
+        <span>
+            <a href="/preview/{{ d.uid }}" target="_blank"><button>View</button></a>
+            <a href="/download/{{ doc.uid }}" style="margin-left: 10px;"><button class="secondary">Download</button></a>
+        </span>
     </div>
     {% endfor %}
 {% else %}

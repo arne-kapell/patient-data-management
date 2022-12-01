@@ -126,6 +126,13 @@
                 right: 0;
                 margin: 10px;
             }
+            .blurred {
+                filter: blur(5px);
+                transition: filter 0.3s ease;
+            }
+            .blurred:hover {
+                filter: blur(0);
+            }
             {% block style %}{% endblock style %}
         </style>
     </head>
@@ -143,7 +150,7 @@
             {% if request.path != '/accounts/login/' %}
                 <div style="margin: 0 0 0 5%;">
                     {% if user.is_authenticated %}
-                        <span style="margin-right: 10px;">{{ user.username }}</span>
+                        <span style="margin-right: 10px;">{{ user.last_name }}, {{ user.first_name }}</span>
                         {% if user.is_staff %}
                         <a href="/admin/"><button class="secondary">Admin</button></a>
                         {% endif %}
