@@ -114,27 +114,3 @@ def loginPage(request):
 def logoutPage(request):
     logout(request)
     return redirect('index')
-
-
-# @login_required
-# def levelUp(request):
-#     if 'doctor' in get_user_roles(request.user):
-#         return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are already a doctor"}})
-#     if request.method == 'POST':
-#         if request.POST['token'] == hashlib.sha256(settings.SECRET_KEY + request.user.id).hexdigest():
-#             assign_role(request.user, 'doctor')
-#             return redirect('index')
-#         else:
-#             return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "Wrong token"}})
-#     return render(request, 'pdm/level-up.html', {"user": request.user})
-
-
-# @login_required
-# def tokenGenerator(request, user_id=None):
-#     if not request.user.is_superuser:
-#         return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are not a superuser"}})
-#     if user_id is None:
-#         return render(request, 'pdm/token-generator.html', {"users": [{"id": u.id, "name": u.username, "perms": u.get_user_permissions} for u in User.objects.all()]})
-#     user_id = user_id or request.user.id
-#     token = hashlib.sha256(settings.SECRET_KEY + request.user.id).hexdigest()
-#     return render(request, 'pdm/basic-out.html', {"title": "Token-Generator", "heading": "Token Generator (ADMIN)", "messages": ["Token: " + token]})

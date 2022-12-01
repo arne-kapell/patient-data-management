@@ -1,0 +1,41 @@
+{% extends 'pdm/main.html' %}
+
+{% block title %}User-Actions{% endblock %}
+{% block style %}
+#doc-list {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    margin: 1rem;
+}
+.doc-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 0.5rem .5rem;
+    align-items: center;
+    padding: 1rem;
+}
+{% endblock %}
+{% block content %}
+{% comment %} <h2>Documents</h2> {% endcomment %}
+<div id="doc-list">
+{% if users|length > 0 %}
+    {% for user in users %}
+    <div class="card doc-row">
+        <h3 style="margin: 0;">{{ user.id }}</h3>
+        <span style="flex-grow: 1; margin: 0 2rem; text-align: start;">{{ user.name }}</span>
+        {% if doc.sensitive %}
+        <span class="badge badge-danger" style="margin-right: 2rem; color: red; font-weight: bold;">Sensitive</span>
+        {% endif %}
+        <span style="margin-right: 2rem;">{{ doc.uploaded_at }}</span>
+        <a href="/preview/{{ doc.uid }}" target="_blank"><button>View</button></a>
+        <a href="/download/{{ doc.uid }}" style="margin-left: 10px;"><button class="secondary">Download</button></a>
+        <a href="/delete/{{ doc.uid }}" style="margin-left: 10px;"><button class="warning">Delete</button></a>
+    </div>
+    {% endfor %}
+{% else %}
+    <p style="font-style: italic;">No documents found.</p>
+{% endif %}
+</div>
+{% endblock %}
