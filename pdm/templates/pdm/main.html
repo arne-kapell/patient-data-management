@@ -143,7 +143,11 @@
             {% if request.path != '/accounts/login/' %}
                 <div style="margin: 0 0 0 5%;">
                     {% if user.is_authenticated %}
-                        {{ user.username }} <a href="{% url 'logout' %}"><button>Logout</button></a>
+                        <span style="margin-right: 10px;">{{ user.username }}</span>
+                        {% if user.is_staff %}
+                        <a href="/admin/"><button class="secondary">Admin</button></a>
+                        {% endif %}
+                        <a href="{% url 'logout' %}"><button>Logout</button></a>
                     {% else %}
                         <a href="{% url 'login' %}"><button>Login</button></a>
                     {% endif %}

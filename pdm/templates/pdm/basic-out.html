@@ -1,0 +1,13 @@
+{% extends 'pdm/main.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+{% comment %} {% block style %}
+{% endblock %} {% endcomment %}
+{% block content %}
+<h2>{{ heading }}</h2>
+{% for message in messages %}
+<div class="card">
+    <p>{{ message }}</p>
+</div>
+{% endfor %}
+{% endblock %}

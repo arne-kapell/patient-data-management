@@ -9,5 +9,6 @@ urlpatterns = [
     path('download/<doc_id>', views.download, name='download'),
     path('delete/<doc_id>', views.deleteDoc, name='delete'),
 
-    path('accounts/', include('django.contrib.auth.urls'))
+    path('accounts/', include('django.contrib.auth.urls')),
+    # path('level-up/', views.levelUp, name='level-up'),
 ]
