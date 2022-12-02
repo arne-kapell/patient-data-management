@@ -1,6 +1,6 @@
 {% extends 'pdm/main.html' %}
 
-{% block title %}Request Access{% endblock %}
+{% block title %}Access Requests{% endblock %}
 {% block style %}
 #request-form {
     display: flex;
@@ -27,10 +27,10 @@
 }
 {% endblock %}
 {% block content %}
-<h2>Request Access to Patient Documents</h2>
 <span>{{ error }}</span>
 <span>{{ success }}</span>
 {% if user.role == 2 %}
+<h2>Request Access to Patient Documents</h2>
 <form action="{% url 'request-access' %}" method="post" enctype="multipart/form-data" id="request-form">
     {% csrf_token %}
     <div>
@@ -47,7 +47,6 @@
     </div>
     <input type="submit" value="Request" style="margin-bottom: 10px;" /><br />
 </form>
-{% endif %}
 <h3>Pending Requests</h3>
 {% if requests_sent|length > 0 %}
 {% for req in requests_sent %}
@@ -63,6 +62,7 @@
 {% endfor %}
 {% else %}
 <p style="font-style: italic;">No requests found.</p>
+{% endif %}
 {% endif %}
 <h3 style="margin-top: 50px;">Requests for Approval</h3>
 {% if requests_for_approval|length > 0 %}
