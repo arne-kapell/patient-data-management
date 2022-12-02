@@ -148,8 +148,9 @@
         <div class="card nav-container">
             {% comment %} render navigation {% endcomment %}
             <ul class="nav">
-                <li {% if request.path == '/' %}class="active"{% endif %}><a href="/">Dashboard</a></li>
-                <li {% if request.path == '/docs/' %}class="active"{% endif %}><a href="/docs">Documents</a></li>
+                <li {% if request.path == '/' %}class="active"{% endif %}><a href="{% url 'index' %}">Dashboard</a></li>
+                <li {% if request.path == '/docs/' %}class="active"{% endif %}><a href="{% url 'docs' %}">Documents</a></li>
+                {% if user.role < 3 %}<li {% if request.path == '/request/' %}class="active"{% endif %}><a href="{% url 'request-access' %}">Access Requests</a></li>{% endif %}
             </ul>
             <div style="margin: 0 0 0 5%;">
                 {% if user.is_authenticated %}

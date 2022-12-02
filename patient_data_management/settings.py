@@ -167,3 +167,6 @@ FILE_UPLOAD_HANDLERS = [
 
 AES_KEY = b64decode(os.getenv("DOCUMENT_ENCRYPTION_KEY",
                     default=b64encode(os.urandom(32))))
+
+MAX_PAST_DAYS_FOR_ACCESS_REQUEST = 30 * 6  # 6 months
+MAX_FUTURE_DAYS_FOR_ACCESS_REQUEST = 30 * 6  # 6 months

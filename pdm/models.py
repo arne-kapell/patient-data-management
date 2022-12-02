@@ -33,6 +33,8 @@ class Note(models.Model):
 
 
 class AccessRequest(models.Model):
+    uid = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=False)
     patient = models.ForeignKey(
         'User', on_delete=models.CASCADE, related_name="patient")
     requested_at = models.DateTimeField(auto_now_add=True)

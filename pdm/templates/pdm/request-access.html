@@ -1,0 +1,82 @@
+{% extends 'pdm/main.html' %}
+
+{% block title %}Request Access{% endblock %}
+{% block style %}
+#request-form {
+    display: flex;
+    flex-direction: column;
+    min-width:20%;
+    width: min-content;
+    margin: auto;
+}
+#request-form div {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0.5em;
+}
+.request-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 0.5rem .5rem;
+    align-items: center;
+    padding: 1rem;
+}
+{% endblock %}
+{% block content %}
+<h2>Request Access to Patient Documents</h2>
+<span>{{ error }}</span>
+<span>{{ success }}</span>
+{% if user.role == 2 %}
+<form action="{% url 'request-access' %}" method="post" enctype="multipart/form-data" id="request-form">
+    {% csrf_token %}
+    <div>
+        <label for="patient-mail">Patient Email</label>
+        <input type="email" name="patient-mail" placeholder="Patient Email" required>
+    </div>
+    <div>
+        <label for="start-date">Start date</label>
+        <input type="date" name="start-date" placeholder="Start Date" required min={{ min_date }} max="{{ today }}" format="dd-mm-yyyy">
+    </div>
+    <div>
+        <label for="end-date">End date</label>
+        <input type="date" name="end-date" placeholder="End Date" required min="{{ min_date }}" max="{{ max_date }}" format="dd-mm-yyyy">
+    </div>
+    <input type="submit" value="Request" style="margin-bottom: 10px;" /><br />
+</form>
+{% endif %}
+<h3>Pending Requests</h3>
+{% if requests_sent|length > 0 %}
+{% for req in requests_sent %}
+<div class="card request-row">
+    <span style="margin-right: 2rem; font-style: italic;">{{ req.requested_at }}</span>
+    <h3 style="margin: 0;">{{ req.patient.last_name }}, {{ req.patient.first_name }}</h3>
+    {% comment %} <span style="flex-grow: 1; margin: 0 2rem; text-align: start;">{{ doc.description }}</span> {% endcomment %}
+    <span style="flex-grow: 1; margin: 0 2rem; text-align: start;">{{ req.period_start }} - {{ req.period_end }}</span>
+    {% comment %} <a href="/preview/{{ doc.uid }}" target="_blank"><button>View</button></a>
+    <a href="/download/{{ doc.uid }}" style="margin-left: 10px;"><button class="secondary">Download</button></a> {% endcomment %}
+    <a href="/delete/{{ doc.uid }}" style="margin-left: 10px;"><button class="warning">Delete</button></a>
+</div>
+{% endfor %}
+{% else %}
+<p style="font-style: italic;">No requests found.</p>
+{% endif %}
+<h3 style="margin-top: 50px;">Requests for Approval</h3>
+{% if requests_for_approval|length > 0 %}
+{% for req in requests_for_approval %}
+<div class="card request-row">
+    <span style="margin-right: 2rem; font-style: italic;">{{ req.requested_at }}</span>
+    <h3 style="margin: 0;">{{ req.patient.last_name }}, {{ req.patient.first_name }}</h3>
+    {% comment %} <span style="flex-grow: 1; margin: 0 2rem; text-align: start;">{{ doc.description }}</span> {% endcomment %}
+    <span style="flex-grow: 1; margin: 0 2rem; text-align: start;">{{ req.period_start }} - {{ req.period_end }}</span>
+    <a href="/approve/{{ req.uid }}" style="margin-left: 10px;"><button>Approve</button></a>
+    <a href="/deny/{{ req.uid }}" style="margin-left: 10px;"><button class="warning">Deny</button></a>
+</div>
+{% endfor %}
+{% else %}
+<p style="font-style: italic;">No requests for approval found.</p>
+{% endif %}
+{% endblock %}

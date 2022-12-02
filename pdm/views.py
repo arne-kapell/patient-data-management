@@ -1,13 +1,14 @@
+import datetime
 import os
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.csrf import csrf_protect
 from django.http import FileResponse, StreamingHttpResponse
 from django.conf import settings
 from encrypted_files.base import EncryptedFile
 from django.views.decorators.csrf import csrf_protect
 
-from pdm.models import Document, User
+from pdm.models import AccessRequest, Document, User
 from django.contrib.auth import authenticate, login, logout
 
 from django.utils.translation import gettext_lazy as _
@@ -101,6 +102,8 @@ def download(request, doc_id):
 @login_required
 def deleteDoc(request, doc_id):
     doc = Document.objects.get(pk=doc_id)
+    if not doc.exists():
+        return render(request, 'pdm/error.html', {"error": {"type": "Not Found", "code": 404, "message": "Document not found"}})
     if request.user != doc.owner:
         return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are not the owner of this document"}})
     doc.file.delete()
@@ -167,3 +170,40 @@ def registerPage(request):
 def logoutPage(request):
     logout(request)
     return redirect('index')
+
+
+@login_required
+@user_passes_test(lambda u: u.role == User.DOCTOR or u.role == User.PATIENT)
+def requestAccess(request):
+    context = dict()
+    today = datetime.date.today()
+    min_date = datetime.date.today(
+    ) - datetime.timedelta(days=settings.MAX_PAST_DAYS_FOR_ACCESS_REQUEST)
+    max_date = datetime.date.today(
+    ) + datetime.timedelta(days=settings.MAX_FUTURE_DAYS_FOR_ACCESS_REQUEST)
+    if request.method == 'POST':
+        patient_mail = request.POST['patient-mail']
+        period_start = request.POST['start-date']
+        period_end = request.POST['end-date']
+        patient = User.objects.filter(email=patient_mail).first()
+        if not patient:
+            return render(request, 'pdm/error.html', {"error": {"type": "Bad Request", "code": 400, "message": "Patient not found"}})
+        if patient.email == request.user.email:
+            return render(request, 'pdm/error.html', {"error": {"type": "Bad Request", "code": 400, "message": "You cannot request access to your own documents"}})
+        period_start = datetime.datetime.strptime(
+            period_start, '%Y-%m-%d').date()
+        period_end = datetime.datetime.strptime(period_end, '%Y-%m-%d').date()
+        if period_start > today or period_start < min_date or period_end > max_date or period_end < today:
+            return render(request, 'pdm/error.html', {"error": {"type": "Bad Request", "code": 400, "message": "Invalid date range"}})
+        access_request = AccessRequest.objects.create(
+            patient=patient, doctor=request.user, period_start=period_start, period_end=period_end)
+        access_request.save()
+        context['success'] = "Request sent"
+    context['today'] = str(today)
+    context['min_date'] = str(min_date)
+    context['max_date'] = str(max_date)
+    context['requests_sent'] = AccessRequest.objects.filter(
+        doctor=request.user, approved=False).reverse()
+    context['requests_for_approval'] = AccessRequest.objects.filter(
+        patient=request.user, approved=False).reverse()
+    return render(request, 'pdm/request-access.html', context)
