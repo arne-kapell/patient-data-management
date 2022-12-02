@@ -84,6 +84,7 @@
                 justify-content: space-between;
                 align-items: center;
                 padding: 10px;
+                overflow-x: auto;
             }
             .nav {
                 list-style: none;
@@ -92,7 +93,6 @@
                 align-items: center;
                 padding: 0;
                 margin: 0;
-                
             }
             .nav li {
                 transition: all 0.3s ease;
@@ -130,6 +130,7 @@
                 border-top: 1px solid var(--primary);
                 box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
                 text-align: center;
+                margin-left: -8px;
             }
             #add-doc-btn {
                 position: absolute;
@@ -158,8 +159,11 @@
             {% comment %} render navigation {% endcomment %}
             <ul class="nav">
                 <li {% if request.path == '/' %}class="active"{% endif %}><a href="{% url 'index' %}">Dashboard</a></li>
+                {% if user.role < 3 %}
                 <li {% if request.path == '/docs/' %}class="active"{% endif %}><a href="{% url 'docs' %}">Documents</a></li>
-                {% if user.role < 3 %}<li {% if request.path == '/request/' %}class="active"{% endif %}><a href="{% url 'request-access' %}">Access Requests</a></li>{% endif %}
+                <li {% if request.path == '/request/' %}class="active"{% endif %}><a href="{% url 'request-access' %}">Access Requests</a></li>
+                {% endif %}
+                {% if user.role == 3 %}<li {% if request.path == '/verify/' %}class="active"{% endif %}><a href="{% url 'request-verify' %}">Verification Requests</a></li>{% endif %}
             </ul>
             <div style="margin: 0 0 0 5%;">
                 {% if user.is_authenticated %}

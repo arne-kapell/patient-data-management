@@ -8,7 +8,7 @@ from django.conf import settings
 from encrypted_files.base import EncryptedFile
 from django.views.decorators.csrf import csrf_protect
 
-from pdm.models import AccessRequest, Document, User
+from pdm.models import AccessRequest, Document, User, VerificationRequest
 from django.db.models import Q
 from django.contrib.auth import authenticate, login, logout
 
@@ -272,3 +272,75 @@ def deleteRequest(request, req_id):
         return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are not the doctor in this request"}})
     access_request.delete()
     return redirect('request-access')
+
+
+def get_check_url(state_code):
+    states = settings.STATES_BY_CODE
+    mapping = settings.STATE_DOCTOR_INDEX_MAPPING
+    if state_code not in states.keys():
+        return None
+    return mapping[state_code]
+
+
+@login_required
+def requestVerify(request):
+    context = dict()
+    if request.method == 'POST':
+        cooldown = settings.VERIFY_REQUEST_COOLDOWN  # in seconds
+        last_request = VerificationRequest.objects.filter(
+            target_user=request.user).order_by('-requested_at').first()
+        if last_request and (datetime.datetime.now(datetime.timezone.utc) - last_request.requested_at).total_seconds() < cooldown:
+            context['error'] = f"You have to wait {cooldown//(60*60)} hours before requesting another verification"
+        else:
+            m_role = request.POST['role']
+            title = request.POST['title'] if 'title' in request.POST else None
+            state = request.POST['state'] if 'state' in request.POST else None
+            check_url = get_check_url(state)
+            if not state or not check_url:
+                context['error'] = "Invalid state"
+            else:
+                v_request = VerificationRequest.objects.create(
+                    target_user=request.user, medical_role=m_role, title=title, check_url=check_url)
+                v_request.save()
+                context['success'] = "Request sent"
+    context['states'] = settings.STATES_BY_CODE
+    context['requests_sent'] = VerificationRequest.objects.filter(
+        target_user=request.user).reverse()
+    if request.user.role == User.VERIFICATOR:
+        context['requests_for_approval'] = VerificationRequest.objects.filter(
+            Q(approved=False) & Q(denied=False)).reverse()
+        context['requests_processed'] = VerificationRequest.objects.filter(
+            Q(approved=True) | Q(denied=True) & Q(processed_by=request.user)).reverse()
+    return render(request, 'pdm/request-verify.html', context)
+
+
+@login_required
+@user_passes_test(lambda u: u.role == User.VERIFICATOR)
+def approveOrDenyVerify(request, req_id, action="deny"):  # TODO: add reason for denial
+    actions = ("approve", "deny", "revoke")
+    v_request = VerificationRequest.objects.filter(pk=req_id).first()
+    if not v_request:
+        return render(request, 'pdm/error.html', {"error": {"type": "Not Found", "code": 404, "message": "Request not found"}})
+    if action not in actions:
+        return render(request, 'pdm/error.html', {"error": {"type": "Bad Request", "code": 400, "message": "Invalid action"}})
+    if (v_request.approved or v_request.denied) and action != "revoke":
+        return render(request, 'pdm/error.html', {"error": {"type": "Bad Request", "code": 400, "message": "Request already processed"}})
+    if action == "approve":
+        v_request.approved = True
+        v_request.processed_by = request.user
+        v_request.processed_at = datetime.datetime.now()
+        v_request.target_user.role = User.DOCTOR
+        v_request.target_user.save()
+    elif action == "deny":
+        v_request.denied = True
+        v_request.processed_by = request.user
+        v_request.processed_at = datetime.datetime.now()
+    elif action == "revoke":
+        v_request.approved = False
+        v_request.denied = True
+        v_request.processed_by = request.user
+        v_request.processed_at = datetime.datetime.now()
+        v_request.target_user.role = User.PATIENT
+        v_request.target_user.save()
+    v_request.save()
+    return redirect('request-verify')

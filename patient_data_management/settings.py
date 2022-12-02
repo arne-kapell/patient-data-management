@@ -170,3 +170,44 @@ AES_KEY = b64decode(os.getenv("DOCUMENT_ENCRYPTION_KEY",
 
 MAX_PAST_DAYS_FOR_ACCESS_REQUEST = 30 * 6  # 6 months
 MAX_FUTURE_DAYS_FOR_ACCESS_REQUEST = 30 * 6  # 6 months
+
+STATES_BY_CODE = {
+    "BW": "Baden-Württemberg",
+    "BY": "Bayern",
+    "BE": "Berlin",
+    "BB": "Brandenburg",
+    "HB": "Bremen",
+    "HH": "Hamburg",
+    "HE": "Hessen",
+    "MV": "Mecklenburg-Vorpommern",
+    "NI": "Niedersachsen",
+    "NR": "Nordrhein",
+    "NW": "Westfalen-Lippe",
+    "RP": "Rheinland-Pfalz",
+    "SL": "Saarland",
+    "SN": "Sachsen",
+    "SA": "Sachsen-Anhalt",
+    "SH": "Schleswig-Holstein",
+    "TH": "Thüringen"
+}
+STATE_DOCTOR_INDEX_MAPPING = {
+    "BW": "http://www.arztsuche-bw.de/",
+    "BY": "http://arztsuche.kvb.de/",
+    "BE": "http://www.kvberlin.de/60arztsuche/index.html",
+    "BB": "https://www.laekb.de/PublicNavigation/arzt/mitgliedschaft/arztsuche/",
+    "HB": "http://www.kvhb.de/arztsuche",
+    "HH": "https://www.aerztekammer-hamburg.org/arztsuche.html",
+    "HE": "http://arztsuchehessen.de/",
+    "MV": "https://www.kvmv.de/service/arztsuche/",
+    "NI": "http://www.arztauskunft-niedersachsen.de/",
+    "NR": "https://www.aekno.de/presse/arztsuchen",
+    "NW": "https://portal.aekwl.de/web/serviceportal/arztsuche#suche",
+    "RP": "https://www.praxisfinder-rlp.de/sprechzeit",
+    "SL": "https://www.aerztekammer-saarland.de/aerzte/informationenfueraerzte/arztsuche/",
+    "SN": "http://www.gesundheitsinfo-sachsen.de/",
+    "SA": "https://arztinfo.kvsa.de/ases-kvsa/ases.jsf",
+    "SH": "https://arztsuche.kvsh.de/",
+    "TH": "http://www.kv-thueringen.de/arztsuche/"
+}
+
+VERIFY_REQUEST_COOLDOWN = 60 * 60 * 24  # 24 hours

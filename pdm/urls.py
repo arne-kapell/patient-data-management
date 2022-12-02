@@ -11,6 +11,9 @@ urlpatterns = [
     path('request/', views.requestAccess, name='request-access'),
     path('request/delete/<req_id>', views.deleteRequest, name='delete-request'),
     path('request/<req_id>/<action>', views.approveOrDeny, name='approve-or-deny'),
+    path('verify/', views.requestVerify, name='request-verify'),
+    path('verify/<req_id>/<action>', views.approveOrDenyVerify,
+         name='approve-or-deny-verify'),
 
     path('accounts/', include('django.contrib.auth.urls')),
     path('accounts/register/', views.registerPage, name='register'),

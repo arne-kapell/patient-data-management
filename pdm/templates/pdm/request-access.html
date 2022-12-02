@@ -24,6 +24,7 @@
     margin: 0.5rem .5rem;
     align-items: center;
     padding: 1rem;
+    overflow-x: auto;
 }
 .badge {
     border-radius: 5rem;
@@ -39,6 +40,8 @@
 }
 {% endblock %}
 {% block content %}
+<div style="margin-bottom: 1rem;"></div>
+<span style="padding: 2rem 10px; max-width: 100%;">You are a doctor and want to access your patients documents? <a href="{% url 'request-verify' %}">Request the verification of your status here.</a></span>
 <span>{{ error }}</span>
 <span>{{ success }}</span>
 {% if user.role == 2 %}

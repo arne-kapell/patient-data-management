@@ -47,6 +47,24 @@ class AccessRequest(models.Model):
     approved_or_denied_at = models.DateTimeField(null=True)
 
 
+class VerificationRequest(models.Model):
+    uid = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=False)
+    target_user = models.ForeignKey(
+        'User', on_delete=models.CASCADE, related_name="target_user")
+    medical_role = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, blank=True)
+    hints = models.TextField(blank=True)
+    check_url = models.URLField(null=True)
+    requested_at = models.DateTimeField(auto_now_add=True)
+    approved = models.BooleanField(default=False)
+    denied = models.BooleanField(default=False)
+    reason = models.TextField(null=True)
+    processed_at = models.DateTimeField(null=True)
+    processed_by = models.ForeignKey(
+        'User', on_delete=models.CASCADE, null=True, related_name="processed_by")
+
+
 class User(AbstractUser):
     username = None
     email = models.EmailField(_('email address'), unique=True)

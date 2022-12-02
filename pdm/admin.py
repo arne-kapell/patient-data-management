@@ -1,11 +1,12 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from pdm.models import Document, Note, AccessRequest, User
+from pdm.models import Document, Note, AccessRequest, User, VerificationRequest
 from pdm.forms import CustomUserCreationForm, CustomUserChangeForm
 
 admin.site.register(Document)
 admin.site.register(Note)
 admin.site.register(AccessRequest)
+admin.site.register(VerificationRequest)
 
 
 class CustomUserAdmin(UserAdmin):
