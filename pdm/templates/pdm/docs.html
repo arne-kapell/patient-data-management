@@ -25,6 +25,9 @@
 {% if documents|length > 0 %}
     {% for doc in documents %}
     <div class="card doc-row{% if doc.sensitive %} blurred{% endif %}">
+        {% if doc.owner != user %}
+        <span style="margin-right: 10px;">{{ doc.owner.last_name }}, {{ doc.owner.first_name }}({{ doc.owner.email }})</span>
+        {% endif %}
         <h3 style="margin: 0;">{{ doc.name }}</h3>
         {% if doc.pages > 0 %}
         <span style="margin-left: 1rem;">{{ doc.pages }} Page{% if doc.pages > 1 %}s{% endif %}</span>
@@ -33,7 +36,9 @@
         <span style="margin-right: 2rem;">{{ doc.uploaded_at }}</span>
         <a href="/preview/{{ doc.uid }}" target="_blank"><button>View</button></a>
         <a href="/download/{{ doc.uid }}" style="margin-left: 10px;"><button class="secondary">Download</button></a>
+        {% if doc.owner == user %}
         <a href="/delete/{{ doc.uid }}" style="margin-left: 10px;"><button class="warning">Delete</button></a>
+        {% endif %}
     </div>
     {% endfor %}
 {% else %}

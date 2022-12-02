@@ -43,7 +43,8 @@ class AccessRequest(models.Model):
     period_start = models.DateField()
     period_end = models.DateField()
     approved = models.BooleanField(default=False)
-    approved_at = models.DateTimeField(null=True)
+    denied = models.BooleanField(default=False)
+    approved_or_denied_at = models.DateTimeField(null=True)
 
 
 class User(AbstractUser):

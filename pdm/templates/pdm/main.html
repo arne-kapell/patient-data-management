@@ -15,6 +15,14 @@
             html {
                 font-family: Helvetica, Arial, sans-serif;
             }
+            body {
+                {% comment %} min-height: 100vh; {% endcomment %}
+                margin-bottom: 0;
+            }
+            main {
+                margin: 0 auto;
+                min-height: 80vh;
+            }
             a {
                 text-decoration: none;
                 color: var(--primary);
@@ -113,7 +121,8 @@
                 background-color: rgba(0, 255, 0, 0.1);
             }
             #footer {
-                position: absolute;
+                position: sticky;
+                background-color: white;
                 left: 0;
                 bottom: 0;
                 width: 100%;
@@ -167,9 +176,11 @@
                 {% endif %}
             </div>
         </div>
-        <div class="card">
+        <main>
+        <div class="card" style="margin-bottom: 10vh;">
         {% block content %}{% endblock %}
         </div>
+        </main>
         <div id="footer">
             <span>&copy; 2022 &#8212; PDM Systems</span>
         </div>

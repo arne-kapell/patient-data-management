@@ -9,6 +9,7 @@ from encrypted_files.base import EncryptedFile
 from django.views.decorators.csrf import csrf_protect
 
 from pdm.models import AccessRequest, Document, User
+from django.db.models import Q
 from django.contrib.auth import authenticate, login, logout
 
 from django.utils.translation import gettext_lazy as _
@@ -23,9 +24,25 @@ def index(request):
     return render(request, 'pdm/index.html', {"documents": docs})
 
 
+def getAccessibleDocuments(user: User) -> list:
+    """Return a list of documents that the user has access to."""
+    if user.role == User.DOCTOR:
+        docs = Document.objects.filter(owner=user)
+        approved_access = AccessRequest.objects.filter(
+            doctor=user, approved=True)
+        for req in approved_access:
+            docs = docs | Document.objects.filter(Q(owner=req.patient) & Q(
+                uploaded_at__gte=req.period_start) & Q(uploaded_at__lte=req.period_end) & Q(sensitive=False))
+        return docs
+    elif user.role == User.PATIENT:
+        return Document.objects.filter(owner=user)
+    else:
+        return []
+
+
 @login_required
 def docs(request):
-    docs = list(Document.objects.filter(owner=request.user))
+    docs = getAccessibleDocuments(request.user)
     status = request.session.pop("status", None)
     return render(request, 'pdm/docs.html', {"documents": docs, "status": status or ""})
 
@@ -72,7 +89,7 @@ def upload(request):
 @login_required
 def preview(request, doc_id):
     doc = Document.objects.get(pk=doc_id)
-    if doc.owner != request.user:
+    if doc.owner != request.user and doc not in getAccessibleDocuments(request.user):
         return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "message": "You do not have permission to view this document"}})
 
     if doc.file.name.split('.')[-1].lower() in settings.NO_PREVIEW_DOCUMENT_EXTENSIONS:
@@ -94,7 +111,7 @@ def preview(request, doc_id):
 @login_required
 def download(request, doc_id):
     doc = Document.objects.get(pk=doc_id)
-    if request.user != doc.owner:
+    if request.user != doc.owner and doc not in getAccessibleDocuments(request.user):
         return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are not the owner of this document"}})
     return FileResponse(EncryptedFile(doc.file), as_attachment=True, filename=doc_id + "." + doc.file.path.split('.')[-1])
 
@@ -131,7 +148,6 @@ def loginPage(request):
 
 @csrf_protect
 def registerPage(request):
-    _
     context = {
         "form": [
             {"id": "mail", "type": "email", "label": _("email address"), "placeholder": _(
@@ -198,6 +214,12 @@ def requestAccess(request):
         access_request = AccessRequest.objects.create(
             patient=patient, doctor=request.user, period_start=period_start, period_end=period_end)
         access_request.save()
+        existing_candidates = AccessRequest.objects.filter(
+            patient=patient, doctor=request.user).exclude(pk=access_request.pk)
+        for candidate in existing_candidates:
+            if candidate.period_start <= period_start and candidate.period_end >= period_end:
+                access_request.delete()
+                return render(request, 'pdm/error.html', {"error": {"type": "Bad Request", "code": 400, "message": "You already have requested access to this patient's documents for this period"}})
         context['success'] = "Request sent"
     context['today'] = str(today)
     context['min_date'] = str(min_date)
@@ -206,4 +228,47 @@ def requestAccess(request):
         doctor=request.user, approved=False).reverse()
     context['requests_for_approval'] = AccessRequest.objects.filter(
         patient=request.user, approved=False).reverse()
+    if request.user.role == User.DOCTOR:
+        context['requests_processed'] = AccessRequest.objects.filter(Q(doctor=request.user) | Q(
+            patient=request.user), Q(approved=True) | Q(denied=True)).reverse()
+    else:
+        context['requests_processed'] = AccessRequest.objects.filter(
+            Q(patient=request.user), Q(approved=True) | Q(denied=True)).reverse()
     return render(request, 'pdm/request-access.html', context)
+
+
+@login_required
+@user_passes_test(lambda u: u.role == User.DOCTOR or u.role == User.PATIENT)
+def approveOrDeny(request, req_id, action="deny"):
+    actions = ("approve", "deny")
+    access_request = AccessRequest.objects.filter(pk=req_id).first()
+    if not access_request:
+        return render(request, 'pdm/error.html', {"error": {"type": "Not Found", "code": 404, "message": "Request not found"}})
+    if request.user.role == User.DOCTOR and access_request.doctor != request.user:
+        return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are not the doctor in this request"}})
+    if request.user.role == User.PATIENT and access_request.patient != request.user:
+        return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are not the patient in this request"}})
+    if action not in actions:
+        return render(request, 'pdm/error.html', {"error": {"type": "Bad Request", "code": 400, "message": "Invalid action"}})
+    if access_request.approved or access_request.denied:
+        return render(request, 'pdm/error.html', {"error": {"type": "Bad Request", "code": 400, "message": "Request already processed"}})
+    if action == "approve":
+        access_request.approved = True
+        access_request.approved_or_denied_at = datetime.datetime.now()
+    elif action == "deny":
+        access_request.denied = True
+        access_request.approved_or_denied_at = datetime.datetime.now()
+    access_request.save()
+    return redirect('request-access')
+
+
+@login_required
+@user_passes_test(lambda u: u.role == User.DOCTOR)
+def deleteRequest(request, req_id):
+    access_request = AccessRequest.objects.filter(pk=req_id).first()
+    if not access_request:
+        return render(request, 'pdm/error.html', {"error": {"type": "Not Found", "code": 404, "message": "Request not found"}})
+    if request.user.role == User.DOCTOR and access_request.doctor != request.user:
+        return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are not the doctor in this request"}})
+    access_request.delete()
+    return redirect('request-access')
