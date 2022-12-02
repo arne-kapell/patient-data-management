@@ -163,7 +163,9 @@
             </ul>
             <div style="margin: 0 0 0 5%;">
                 {% if user.is_authenticated %}
-                    {% if user.last_name and user.first_name %}
+                    {% if user.is_superuser %}
+                    <span style="margin-right: 10px; color: red;">ADMIN</span>
+                    {% elif user.last_name and user.first_name %}
                     <span style="margin-right: 10px;">{{ user.last_name }}, {{ user.first_name }}</span>
                     {% endif %}
                     {% if user.is_staff %}

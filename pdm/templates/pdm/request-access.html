@@ -51,11 +51,11 @@
     </div>
     <div>
         <label for="start-date">Start date</label>
-        <input type="date" name="start-date" placeholder="Start Date" required min={{ min_date }} max="{{ today }}" format="dd-mm-yyyy">
+        <input type="date" name="start-date" placeholder="Start Date" required min={{ min_date }} max="{{ today }}" format="dd-mm-yyyy" value="{{ today }}">
     </div>
     <div>
         <label for="end-date">End date</label>
-        <input type="date" name="end-date" placeholder="End Date" required min="{{ min_date }}" max="{{ max_date }}" format="dd-mm-yyyy">
+        <input type="date" name="end-date" placeholder="End Date" required min="{{ min_date }}" max="{{ max_date }}" format="dd-mm-yyyy" value="{{ today }}">
     </div>
     <input type="submit" value="Request" style="margin-bottom: 10px;" /><br />
 </form>
