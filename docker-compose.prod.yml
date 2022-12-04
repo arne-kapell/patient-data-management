@@ -2,6 +2,7 @@ volumes:
   pg_data:
     driver: local
 networks:
+  pdm_default:
   web:
     external: true
 services:
@@ -13,6 +14,8 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+    networks:
+      - pdm_default
   django:
     build: .
     command: >
@@ -29,6 +32,7 @@ services:
     depends_on:
       - db
     networks:
+      - pdm_default
       - web
     labels:
       - "traefik.enable=true"
