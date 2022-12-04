@@ -133,6 +133,7 @@ USE_TZ = True
 URL_PREFIX = os.getenv("URL_PREFIX", default="")
 
 STATIC_URL = STATIC_ROOT = URL_PREFIX + "static/"
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 
 LOGIN_URL = URL_PREFIX + "/accounts/login/"
 LOGIN_REDIRECT_URL = LOGOUT_REDIRECT_URL = 'index'
