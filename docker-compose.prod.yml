@@ -28,7 +28,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - DEBUG=0
       - URL_PREFIX=pdm/
-      # - DOCUMENT_ENCRYPTION_KEY=elRm7Dkq755tSR9t3jQ6U4kqHPsvB8CndGK7laroqQA=
+      - DOCUMENT_ENCRYPTION_KEY=elRm7Dkq755tSR9t3jQ6U4kqHPsvB8CndGK7laroqQA=
     depends_on:
       - db
     networks:
