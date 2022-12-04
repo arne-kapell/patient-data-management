@@ -88,9 +88,9 @@ class User(AbstractUser):
 
     objects = UserManager()
 
-    def save(self, *args, **kwargs):
-        if self.role == User.VERIFICATOR:
-            self.is_staff = True  # TODO: remove and implement in UI
-        elif not self.is_superuser:
-            self.is_staff = False
-        super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     if self.role == User.VERIFICATOR:
+    #         self.is_staff = True  # TODO: remove and implement in UI
+    #     elif not self.is_superuser:
+    #         self.is_staff = False
+    #     super().save(*args, **kwargs)
