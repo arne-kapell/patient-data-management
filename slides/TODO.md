@@ -19,6 +19,8 @@
 2. DB-Backups (automatisiert, verschlüsselt) **--Irina**
 3. Upload-Scanning (Viren, etc.) **--Irina**
 
+    https://github.com/QueraTeam/django-clamav
+
 
 # Doku
 ## Sicherheit
