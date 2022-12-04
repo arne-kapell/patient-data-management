@@ -132,8 +132,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 URL_PREFIX = os.getenv("URL_PREFIX", default="")
 
-STATIC_URL = STATIC_ROOT = URL_PREFIX + "static/"
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+STATIC_URL = URL_PREFIX + "static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
+# STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 
 LOGIN_URL = URL_PREFIX + "/accounts/login/"
 LOGIN_REDIRECT_URL = LOGOUT_REDIRECT_URL = 'index'
