@@ -29,7 +29,9 @@ SECRET_KEY = "django-insecure-43&7229&ro7_g(to0494&#is$^g=%i*fxf&0bug3)r6bdroll!
 DEBUG = bool(int(os.getenv("DEBUG", default=0)))
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', 'cloud.arne-kapell.de']
-
+CSRF_TRUSTED_ORIGINS = ['http://localhost', 'http://127.0.0.1',
+                        'http://0.0.0.0', 'https://cloud.arne-kapell.de']
+# CSRF_COOKIE_SECURE = not bool(int(os.getenv("DEBUG", default=0)))
 
 # Application definition
 

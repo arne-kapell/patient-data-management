@@ -1,5 +1,5 @@
 ## Testing
-1. Eingabe-Validierung --Arne
+1. Eingabe-Validierung **--Arne**
 2. Test-Stategie ("Testplan") **--Arne**
 3. Tooling (für Django) **--Arne**
 
@@ -17,3 +17,13 @@
 
 2. DB-Backups (automatisiert, verschlüsselt) **--Irina**
 3. Upload-Scanning (Viren, etc.) **--Irina**
+
+
+# Doku
+## Sicherheit
+- Session-Länge
+- Passwort-Hashing
+- DB-Backups
+- Upload-Scanning
+- Dokument-Verschlüsselung
+- ...
