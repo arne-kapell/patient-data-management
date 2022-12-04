@@ -2,6 +2,7 @@
 1. Eingabe-Validierung **--Arne**
 2. Test-Stategie ("Testplan") **--Arne**
 3. Tooling (für Django) **--Arne**
+4. Deployment **--Arne**
 
 ## App-Improvements **--Finn**
 1. Teilen mit Patienten
