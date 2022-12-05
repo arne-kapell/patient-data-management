@@ -31,9 +31,7 @@ jobs:
           export POSTGRES_USER=postgres
           export POSTGRES_PASSWORD=postgres
           export POSTGRES_DB=postgres
-          while ! nc -z $POSTGRES_HOST $POSTGRES_PORT; do
-            sleep 0.1
-          done
+          while ! docker exec postgres pg_isready -U postgres; do sleep 1; done
           python manage.py test
   deploy:
     runs-on: ubuntu-latest
