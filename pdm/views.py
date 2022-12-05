@@ -184,9 +184,7 @@ def sendVerificationEmail(user: User, base_url: str, callback: str = "accounts/v
 
 @csrf_protect
 def registerPage(request):
-    context = {
-        "form": RegistrationForm()
-    }
+    form = RegistrationForm()
     if request.user.is_authenticated:
         return redirect('index')
     if request.method == 'POST':
@@ -194,16 +192,15 @@ def registerPage(request):
         if form.is_valid():
             user = form.save(commit=False)
             if form.cleaned_data['password1'] != form.cleaned_data['password2']:
-                context['error'] = "Passwords do not match"
+                form.add_error('password2', 'Passwords do not match')
             elif User.objects.filter(email=user.email).exists():
-                context['error'] = "Email already in use"
+                form.add_error('email', 'Email already in use')
             else:
-                # user.is_active = False
                 user.save()
                 sendVerificationEmail(
                     user, f"{request.scheme}://{request.get_host()}/")
                 return render(request, 'pdm/basic-out.html', {"title": "Confirm Mail", "heading": "Successfull Registration", "messages": ["Please confirm your email address to complete the registration"]})
-    return render(request, 'registration/register.html', context)
+    return render(request, 'registration/register.html', {"form": form})
 
 
 @login_required
