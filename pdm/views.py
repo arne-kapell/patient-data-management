@@ -144,25 +144,23 @@ def profilePage(request):
 
 @csrf_protect
 def loginPage(request):
-    context = {
-        "form": LoginForm(),
-    }
+    form = LoginForm()
     if request.user.is_authenticated:
         return redirect('index')
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            if not user.verified:
-                sendVerificationEmail(
-                    user, f"{'http' if settings.DEBUG else 'https'}://{request.get_host()}/")
-            next_page = request.GET.get('next')
-            return redirect(next_page or 'index')
-        else:
-            context['error'] = 'Wrong username or password'
-    return render(request, 'registration/login.html', context)
+        form = LoginForm(data=request.POST)
+        if form.is_valid():
+            user = authenticate(
+                request, username=form.data['username'], password=form.data['password'])
+            if user is not None:
+                login(request, user)
+                if not user.verified:
+                    sendVerificationEmail(
+                        user, f"{'http' if settings.DEBUG else 'https'}://{request.get_host()}/")
+                next_page = request.GET.get('next')
+                return redirect(next_page or 'index')
+        form.add_error(None, "Invalid username or password")
+    return render(request, 'registration/login.html', {"form": form})
 
 
 @login_required
