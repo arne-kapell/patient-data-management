@@ -152,7 +152,7 @@ def loginPage(request):
             login(request, user)
             if not user.verified:
                 sendVerificationEmail(
-                    user, f"{request.scheme}://{request.get_host()}/")
+                    user, f"{'http' if settings.DEBUG else 'https'}://{request.get_host()}/")
             next_page = request.GET.get('next')
             return redirect(next_page or 'index')
         else:
