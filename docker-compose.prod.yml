@@ -30,7 +30,9 @@ services:
       - POSTGRES_PASSWORD=postgres
       - DEBUG=0
       # - URL_PREFIX=pdm/
+      # - SECRET_KEY=secret
       - DOCUMENT_ENCRYPTION_KEY=elRm7Dkq755tSR9t3jQ6U4kqHPsvB8CndGK7laroqQA=
+      - EMAIL_HOST_PASSWORD=PW4patientdatamanagement
     depends_on:
       - db
     networks:
@@ -47,3 +49,30 @@ services:
       - "traefik.http.routers.pdm.tls.certresolver=http"
       - "traefik.http.services.pdm-svc.loadbalancer.server.port=8000"
       - "traefik.docker.network=web"
+  pg_backups:
+    image: prodrigestivill/postgres-backup-local
+    restart: always
+    networks:
+      - pdm_default
+    volumes:
+      - ./backup:/backups
+    links:
+      - db:db
+    depends_on:
+      - db
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+      #- POSTGRES_EXTRA_OPTS=-Z9 --schema=public --blobs
+      #  - POSTGRES_PASSWORD_FILE=/run/secrets/db_password <-- alternative for POSTGRES_PASSWORD (to use with docker secrets)
+      - SCHEDULE=@every 0h00m30s  
+      - BACKUP_KEEP_DAYS=7
+      - BACKUP_KEEP_WEEKS=4
+      - BACKUP_KEEP_MONTHS=6
+      - HEALTHCHECK_PORT=81
+  # wiederherstellen
+  # docker cp C:\Users\Irina\Documents\GitHub\patient-data-management\backup\daily\postgres-20221204.sql.gz $containerid:/postgres-20221204.sql.gz
+  # docker exec --tty --interactive $containerid  /bin/sh -c "zcat postgres-20221204.sql.gz | psql --username=xxxxx --dbname=xxxx -W"
