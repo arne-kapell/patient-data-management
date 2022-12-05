@@ -9,7 +9,7 @@
 
 * [ ] Teilen mit Patienten
 * [ ] Dokumente "bearbeiten" (update)
-* [-] Benutzer-Profile mit pers. Daten (Geburtstag, Geschlecht, etc.)
+* [x] Benutzer-Profile mit pers. Daten (Geburtstag, Geschlecht, etc.)
 * [-] Account-Verwaltung (Passwort-Reset, Löschen, Mail-Verifizierung, etc.)
 * [ ] (*CASCADING* für *AccessRequests* prüfen)
 
