@@ -1,17 +1,36 @@
 {% extends 'pdm/main.html' %}
 
-{% block title %}User: {{ user.email }} {% endblock %}
+{% block title %} Personal information of {{ user.email }} {% endblock %}
+
+{% block style %}
+#personal_info {
+    display: flex;
+    flex-direction: column;
+    min-width:20%;
+    width: min-content;
+    margin: auto;
+}
+#personal_info div {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0.5em;
+}
+{% endblock %}
+
 {% block content %}
-<p>{{ user.email }}</p>
-<p>{{ user.first_name }}</p>
-<p>{{ user.last_name }}</p>
-<p>{{ user.birth_date }}</p>
-<p>{{ user.sex }}</p>
-<p>{{ user.phone }}</p>
-<p>{{ user.country }}</p>
-<p>{{ user.postal_code }}</p>
-<p>{{ user.city }}</p>
-<p>{{ user.street_name }}</p>
-<p>{{ user.street_number }}</p>
+<h2>Personal information of {{ user.first_name }} {{ user.last_name }}</h2>
+<div id="personal_info">
+    <div><span>Date of birth: </span><span>{{ user.birth_date }}</span></div>
+    <div><span>Biological sex: </span><span>{{ user.sex }}</span></div>
+    <div><span>Phone number: </span><span>{{ user.phone }}</span></div>
+    <div><span>Country: </span><span>{{ user.country }}</span></div>
+    <div><span>Postal code: </span><span>{{ user.postal_code }}</span></div>
+    <div><span>City: </span><span>{{ user.city }}</span></div>
+    <div><span>Street name: </span><span>{{ user.street_name }}</span></div>
+    <div><span>Street number: </span><span>{{ user.street_number }}</span></div>
+</div>
 <a href="/profile/edit/"><button>Edit</button></a>
 {% endblock %}

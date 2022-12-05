@@ -28,7 +28,7 @@
 {% endif %}
 
 <h2>Edit personal information of {{ user.first_name }} {{ user.last_name }}</h2>
-<form id="register-form" method="post" action="{% url 'profile' %}">
+<form id="register-form" method="post" action="{% url 'edit-profile' %}">
 {% csrf_token %}
 <div>
     {{ form.email.label_tag }} {{ form.email }}
@@ -78,6 +78,6 @@
 </div>
 </form>
 
-<a href="/profile/"><button>Back</button></a>
+<a href="{% url 'profile' %}"><button>Back</button></a>
 
 {% endblock %}

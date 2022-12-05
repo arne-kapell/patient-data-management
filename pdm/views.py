@@ -188,14 +188,25 @@ def sendVerificationEmail(user: User, base_url: str, callback: str = "accounts/v
 @login_required
 @csrf_protect
 def editProfile(request):
-    form = ChangeableForm()
+    form = ChangeableForm(instance=request.user)
 
     if request.method == 'POST':
-        form = ChangeableForm(request.POST)
+        form = ChangeableForm(request.POST, instance=request.user)
+        print(form.changed_data, form.is_valid())
         if form.is_valid():
             user = form.save(commit=False)
-            user.update()
-        return redirect('profile')
+            if 'email' in form.changed_data:
+                if User.objects.filter(email=user.email).exists():
+                    form.add_error('email', 'Email already exists')
+                else:
+                    user.verified = False
+                    sendVerificationEmail(
+                        user, f"{'http' if settings.DEBUG else 'https'}://{request.get_host()}/")
+                    user.save()
+                    return redirect('profile')
+            else:
+                user.save()
+                return redirect('profile')
 
     return render(request, 'pdm/edit-profile.html', {"form": form})
 
@@ -203,7 +214,7 @@ def editProfile(request):
 @csrf_protect
 def registerPage(request):
     form = RegistrationForm()
-    if request.user.is_authenticated:
+    if request.user.is_authenticated: 
         return redirect('index')
     if request.method == 'POST':
         form = RegistrationForm(request.POST)

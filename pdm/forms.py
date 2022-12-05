@@ -1,4 +1,5 @@
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, AuthenticationForm
+from django import forms
 
 from pdm.models import User
 
@@ -39,13 +40,18 @@ class RegistrationForm(UserCreationForm):
         )
 
 
-class ChangeableForm(UserChangeForm):
+class ChangeableForm(forms.ModelForm):
+    email = forms.EmailField(required=False)
+    phone = forms.CharField(required=False)
+    country = forms.CharField(required=False)
+    postal_code = forms.CharField(required=False)
+    city = forms.CharField(required=False)
+    street_name = forms.CharField(required=False)
+    street_number = forms.CharField(required=False)
     class Meta:
         model = User
         fields = (
-            'email',
-            'first_name',
-            'last_name',
+            'email', 
             'phone', 
             'country',
             'postal_code', 
