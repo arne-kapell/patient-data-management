@@ -25,6 +25,7 @@ services:
     ports:
       - 8000:8000
     environment:
+      - POSTGRES_HOST=db
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -49,7 +50,7 @@ services:
       - "traefik.http.routers.pdm.tls.certresolver=http"
       - "traefik.http.services.pdm-svc.loadbalancer.server.port=8000"
       - "traefik.docker.network=web"
-  pg_backups:
+  db_backups:
     image: prodrigestivill/postgres-backup-local
     restart: always
     networks:
@@ -68,11 +69,10 @@ services:
       - POSTGRES_DB=postgres
       #- POSTGRES_EXTRA_OPTS=-Z9 --schema=public --blobs
       #  - POSTGRES_PASSWORD_FILE=/run/secrets/db_password <-- alternative for POSTGRES_PASSWORD (to use with docker secrets)
-      - SCHEDULE=@every 0h00m30s  
+      - SCHEDULE=@every 12h00m00s
       - BACKUP_KEEP_DAYS=7
       - BACKUP_KEEP_WEEKS=4
       - BACKUP_KEEP_MONTHS=6
-      - HEALTHCHECK_PORT=81
   # wiederherstellen
   # docker cp C:\Users\Irina\Documents\GitHub\patient-data-management\backup\daily\postgres-20221204.sql.gz $containerid:/postgres-20221204.sql.gz
   # docker exec --tty --interactive $containerid  /bin/sh -c "zcat postgres-20221204.sql.gz | psql --username=xxxxx --dbname=xxxx -W"
