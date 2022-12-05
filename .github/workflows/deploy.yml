@@ -35,7 +35,7 @@ jobs:
             sleep 0.1
           done
           # create postgres database
-          docker exec -it postgres psql -U postgres -c "CREATE DATABASE postgres;"
+          docker exec postgres psql -U postgres -c "CREATE DATABASE postgres;"
           python manage.py test
   deploy:
     runs-on: ubuntu-latest
