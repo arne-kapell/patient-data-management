@@ -63,6 +63,6 @@ jobs:
         KEY: ${{ env.SSHKEY }}
         script: |
           cd ${{ env.TARGET_PATH }}
-          docker compose -f ${{ env.COMPOSE_FILE }} up -d --build --force-recreate --remove-orphans db > ACTION_DEPLOY.log || true
-          docker compose -f ${{ env.COMPOSE_FILE }} up -d --build --force-recreate --remove-orphans django >> ACTION_DEPLOY.log || true
-          docker compose -f ${{ env.COMPOSE_FILE }} up -d --build --force-recreate --remove-orphans db_backups >> ACTION_DEPLOY.log || true
+          docker compose -f ${{ env.COMPOSE_FILE }} up -d --build --force-recreate --remove-orphans db > ACTION_DEPLOY.log
+          docker compose -f ${{ env.COMPOSE_FILE }} up -d --build --force-recreate --remove-orphans django >> ACTION_DEPLOY.log
+          docker compose -f ${{ env.COMPOSE_FILE }} up -d --build --force-recreate --remove-orphans db_backups >> ACTION_DEPLOY.log
