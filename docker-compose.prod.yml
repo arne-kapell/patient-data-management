@@ -30,7 +30,9 @@ services:
       - POSTGRES_PASSWORD=postgres
       - DEBUG=0
       # - URL_PREFIX=pdm/
+      # - SECRET_KEY=secret
       - DOCUMENT_ENCRYPTION_KEY=elRm7Dkq755tSR9t3jQ6U4kqHPsvB8CndGK7laroqQA=
+      - EMAIL_HOST_PASSWORD=PW4patientdatamanagement
     depends_on:
       - db
     networks:

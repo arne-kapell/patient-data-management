@@ -15,6 +15,9 @@ urlpatterns = [
     path('verify/<req_id>/<action>', views.approveOrDenyVerify,
          name='approve-or-deny-verify'),
 
-    path('accounts/', include('django.contrib.auth.urls')),
+    # path('accounts/', include('django.contrib.auth.urls')),
     path('accounts/register/', views.registerPage, name='register'),
+    path('accounts/login/', views.loginPage, name='login'),
+    path('accounts/logout/', views.logoutUser, name='logout'),
+    path('accounts/verify/<uidb64>/<token>', views.verifyUser, name='verify'),
 ]

@@ -1,5 +1,6 @@
 import datetime
 import os
+from pdm.forms import LoginForm, RegistrationForm
 import werkzeug
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -12,6 +13,11 @@ from django.views.decorators.csrf import csrf_protect
 from pdm.models import AccessRequest, Document, User, VerificationRequest
 from django.db.models import Q
 from django.contrib.auth import authenticate, login, logout
+
+from django.core.mail import EmailMessage
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
 
 from django.utils.translation import gettext_lazy as _
 
@@ -133,7 +139,9 @@ def deleteDoc(request, doc_id):
 
 @csrf_protect
 def loginPage(request):
-    context = {}
+    context = {
+        "form": LoginForm(),
+    }
     if request.user.is_authenticated:
         return redirect('index')
     if request.method == 'POST':
@@ -142,45 +150,59 @@ def loginPage(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            context['success'] = "Login successful"
+            if not user.verified:
+                sendVerificationEmail(
+                    user, f"{request.scheme}://{request.get_host()}/")
+            next_page = request.GET.get('next')
+            return redirect(next_page or 'index')
         else:
             context['error'] = 'Wrong username or password'
-    return render(request, 'pdm/login.html', context)
+    return render(request, 'registration/login.html', context)
+
+
+@login_required
+def logoutUser(request):
+    logout(request)
+    return redirect('login')
+
+
+def sendVerificationEmail(user: User, base_url: str, callback: str = "accounts/verify"):
+    if user.verified:
+        return 1
+    # token = default_token_generator.make_token(user)
+    # assert default_token_generator.check_token(user, token)
+    token = default_token_generator.make_token(user)
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    link = base_url + callback + f"/{uid}/{token}"
+    mail = EmailMessage(
+        'Verify your account',
+        f'Please verify your account by clicking the following link: {link}',
+        to=[user.email]
+    )
+    return mail.send()
 
 
 @csrf_protect
 def registerPage(request):
     context = {
-        "form": [
-            {"id": "mail", "type": "email", "label": _("email address"), "placeholder": _(
-                "Enter email"), "required": True, "value": "", "autofocus": True},
-            {"id": "password", "type": "password", "label": _("password"), "placeholder": _(
-                "Enter password"), "required": True, "value": ""},
-            {"id": "password2", "type": "password", "label": _("repeat password"), "placeholder": _(
-                "Repeat password"), "required": True, "value": ""},
-            {"id": "first_name", "type": "text", "label": _("first name"), "placeholder": _(
-                "Enter first name"), "required": False, "value": ""},
-            {"id": "last_name", "type": "text", "label": _("last name"), "placeholder": _(
-                "Enter last name"), "required": False, "value": ""},
-        ]
+        "form": RegistrationForm()
     }
     if request.user.is_authenticated:
         return redirect('index')
     if request.method == 'POST':
-        email = request.POST['mail']
-        password = request.POST['password']
-        password2 = request.POST['password2']
-        first_name = request.POST['first_name']
-        last_name = request.POST['last_name']
-        if password != password2:
-            context['error'] = "Passwords do not match"
-        elif User.objects.filter(email=email).exists():
-            context['error'] = "Email already in use"
-        else:
-            user = User.objects.create_user(
-                email=email, password=password, first_name=first_name, last_name=last_name)
-            user.save()
-            return redirect('login')
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            if form.cleaned_data['password1'] != form.cleaned_data['password2']:
+                context['error'] = "Passwords do not match"
+            elif User.objects.filter(email=user.email).exists():
+                context['error'] = "Email already in use"
+            else:
+                # user.is_active = False
+                user.save()
+                sendVerificationEmail(
+                    user, f"{request.scheme}://{request.get_host()}/")
+                return render(request, 'pdm/basic-out.html', {"title": "Confirm Mail", "heading": "Successfull Registration", "messages": ["Please confirm your email address to complete the registration"]})
     return render(request, 'registration/register.html', context)
 
 
@@ -188,6 +210,23 @@ def registerPage(request):
 def logoutPage(request):
     logout(request)
     return redirect('index')
+
+
+def verifyUser(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+    if user is not None and not user.verified:
+        if default_token_generator.check_token(user, token):
+            user.verified = True
+            user.save()
+            return render(request, 'pdm/basic-out.html', {"title": "Email Confirmed", "heading": "Email Confirmed", "messages": ["Your email address has been confirmed"]})
+        else:
+            return render(request, 'pdm/basic-out.html', {"title": "Invalid Token", "heading": "Invalid Token", "messages": ["The confirmation link was invalid, possibly because it has already been used. Please request a new confirmation email."]})
+    else:
+        return render(request, 'pdm/basic-out.html', {"title": "Email Confirmation Failed", "heading": "Email Confirmation Failed", "messages": ["The confirmation link was invalid"]})
 
 
 @login_required

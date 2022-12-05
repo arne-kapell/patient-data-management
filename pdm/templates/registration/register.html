@@ -29,21 +29,21 @@
 <h2>Register a new account</h2>
 <form id="register-form" method="post" action="{% url 'register' %}">
 {% csrf_token %}
-{% for field in form %}
 <div>
-    <label for="{{ field.id }}">{{ field.label }}</label>
-    <input type="{{ field.type }}" name="{{ field.id }}" id="{{ field.id }}" value="{{ field.value }}" placeholder="{{ field.placeholder }}" required="{{ field.required }}" autofocus="{{ field.autofocus }}" />
-</div>
-{% endfor %}
-{% comment %} <div>
-    {{ form.username.label_tag }} {{ form.username }}
+    {{ form.email.label_tag }} {{ form.email }}
 </div>
 <div>
-    {{ form.password.label_tag }} {{ form.password }}
+    {{ form.password1.label_tag }} {{ form.password1 }}
 </div>
 <div>
     {{ form.password2.label_tag }} {{ form.password2 }}
-</div> {% endcomment %}
+</div>
+<div>
+    {{ form.first_name.label_tag }} {{ form.first_name }}
+</div>
+<div>
+    {{ form.last_name.label_tag }} {{ form.last_name }}
+</div>
 
 <div style="justify-content: center">
     <input type="submit" value="Register">

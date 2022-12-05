@@ -22,7 +22,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-43&7229&ro7_g(to0494&#is$^g=%i*fxf&0bug3)r6bdroll!"
+SECRET_KEY = os.environ.get(
+    "SECRET_KEY", "django-insecure-43&7229&ro7_g(to0494&#is$^g=%i*fxf&0bug3)r6bdroll!")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # use env if available
@@ -215,3 +216,17 @@ STATE_DOCTOR_INDEX_MAPPING = {
 }
 
 VERIFY_REQUEST_COOLDOWN = 60 * 60 * 24  # 24 hours
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' if DEBUG else 'django.core.mail.backends.smtp.EmailBackend'
+
+PASSWORD_RESET_TIMEOUT = 60 * 60 * 24  # 24 hours
+if not DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    MAILER_EMAIL_BACKEND = EMAIL_BACKEND
+    EMAIL_HOST = os.environ.get("EMAIL_HOST", default="smtp.strato.de")
+    EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", default="")
+    EMAIL_HOST_USER = os.environ.get(
+        "EMAIL_HOST_USER", default="no-reply@cloud.arne-kapell.de")
+    EMAIL_PORT = 465
+    EMAIL_USE_SSL = True
+    DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
