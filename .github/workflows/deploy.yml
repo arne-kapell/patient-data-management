@@ -25,7 +25,7 @@ jobs:
           pip install -r requirements.txt
       - name: Run Tests
         run: |
-          docker run --name postgres -e POSTGRES_PASSWORD=postgres -d -p 5432:5432 postgres:latest
+          docker run --name postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=postgres -e POSTGRES_USER=postgres -d -p 5432:5432 postgres:latest
           export POSTGRES_HOST=127.0.0.1
           export POSTGRES_PORT=5432
           export POSTGRES_USER=postgres
@@ -34,8 +34,6 @@ jobs:
           while ! nc -z $POSTGRES_HOST $POSTGRES_PORT; do
             sleep 0.1
           done
-          # create postgres database
-          docker exec postgres psql -U postgres -c "CREATE DATABASE postgres;"
           python manage.py test
   deploy:
     runs-on: ubuntu-latest
