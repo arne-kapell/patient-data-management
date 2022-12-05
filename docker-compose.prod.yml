@@ -49,14 +49,13 @@ services:
       - "traefik.http.routers.pdm.tls.certresolver=http"
       - "traefik.http.services.pdm-svc.loadbalancer.server.port=8000"
       - "traefik.docker.network=web"
-  pgbackups:
-    container_name: Backup
+  pg_backups:
     image: prodrigestivill/postgres-backup-local
     restart: always
     volumes:
       - ./backup:/backups
-    links:
-      - db:db
+    # links:
+    #   - db:db
     depends_on:
       - db
     environment:
