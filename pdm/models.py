@@ -68,6 +68,17 @@ class VerificationRequest(models.Model):
 class User(AbstractUser):
     username = None
     email = models.EmailField(_('email address'), unique=True)
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
+    birth_date = models.DateField(null=True)
+    sex = models.CharField(max_length=255, null=True)
+    phone = models.CharField(max_length=255, null=True)
+    # address
+    street_name = models.CharField(max_length=255, null=True)
+    street_number = models.CharField(max_length=255, null=True)
+    city = models.CharField(max_length=255, null=True)
+    postal_code = models.CharField(max_length=255, null=True)
+    country = models.CharField(max_length=255, null=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []

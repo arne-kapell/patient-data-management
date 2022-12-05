@@ -1,0 +1,16 @@
+{% extends 'pdm/main.html' %}
+
+{% block title %}User: {{ user.username }} {% endblock %}
+{% block content %}
+<p>{{ user.email }}</p>
+<p>{{ user.first_name }}</p>
+<p>{{ user.last_name }}</p>
+<p>{{ user.birth_date }}</p>
+<p>{{ user.sex }}</p>
+<p>{{ user.phone }}</p>
+<p>{{ user.country }}</p>
+<p>{{ user.postal_code }}</p>
+<p>{{ user.city }}</p>
+<p>{{ user.street_name }}</p>
+<p>{{ user.street_number }}</p>
+{% endblock %}

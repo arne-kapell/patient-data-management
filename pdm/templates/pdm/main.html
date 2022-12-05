@@ -170,7 +170,8 @@
                     {% if user.is_superuser %}
                     <span style="margin-right: 10px; color: red;">ADMIN</span>
                     {% elif user.last_name and user.first_name %}
-                    <span style="margin-right: 10px;">{{ user.last_name }}, {{ user.first_name }}</span>
+                    <!--<span style="margin-right: 10px;">{{ user.last_name }}, {{ user.first_name }}</span>-->
+                    <a href="/profile/"><button>{{ user.last_name }}, {{ user.first_name }}</button></a>
                     {% endif %}
                     {% if user.is_staff %}
                     <a href="/admin/"><button>Admin</button></a>

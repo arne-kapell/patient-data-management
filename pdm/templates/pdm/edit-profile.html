@@ -1,0 +1,45 @@
+{% extends "pdm/main.html" %}
+
+{% block title %}Edit User Information{% endblock %}
+
+{% block style %}
+#register-form {
+    display: flex;
+    flex-direction: column;
+    min-width:20%;
+    width: min-content;
+    margin: auto;
+}
+#register-form div {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0.5em;
+}
+{% endblock %}
+
+{% block content %}
+{% if error %}
+<div class="card alert error" role="alert">
+    {{ error }}
+</div>
+{% endif %}
+
+<h2>Edit profile information of {{ user.first_name }} {{ user.last_name }}</h2>
+<form id="register-form" method="post" action="{% url 'profile' %}">
+{% csrf_token %}
+{% for field in form %}
+<div>
+    <label for="{{ field.id }}">{{ field.label }}</label>
+    <input type="{{ field.type }}" name="{{ field.id }}" id="{{ field.id }}" value="{{ field.value }}" placeholder="{{ field.placeholder }}" required="{{ field.required }}" autofocus="{{ field.autofocus }}" />
+</div>
+{% endfor %}
+
+<div style="justify-content: center">
+    <input type="submit" value="Save changes">
+</div>
+</form>
+
+{% endblock %}
