@@ -29,7 +29,9 @@ SECRET_KEY = "django-insecure-43&7229&ro7_g(to0494&#is$^g=%i*fxf&0bug3)r6bdroll!
 DEBUG = bool(int(os.getenv("DEBUG", default=0)))
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', 'cloud.arne-kapell.de']
-
+CSRF_TRUSTED_ORIGINS = ['http://localhost', 'http://127.0.0.1',
+                        'http://0.0.0.0', 'https://cloud.arne-kapell.de']
+# CSRF_COOKIE_SECURE = not bool(int(os.getenv("DEBUG", default=0)))
 
 # Application definition
 
@@ -47,7 +49,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    # 'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -131,6 +133,8 @@ USE_TZ = True
 URL_PREFIX = os.getenv("URL_PREFIX", default="")
 
 STATIC_URL = URL_PREFIX + "static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
+# STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 
 LOGIN_URL = URL_PREFIX + "/accounts/login/"
 LOGIN_REDIRECT_URL = LOGOUT_REDIRECT_URL = 'index'

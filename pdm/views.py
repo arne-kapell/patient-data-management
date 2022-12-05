@@ -1,5 +1,6 @@
 import datetime
 import os
+import werkzeug
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.csrf import csrf_protect
@@ -66,6 +67,7 @@ def upload(request):
                 try:
                     tmp_path = "documents/tmp/"
                     tmp = f"{tmp_path}exif.{file_format}"
+                    tmp = werkzeug.utils.secure_filename(tmp)
                     os.mkdir("documents/tmp")
                     with open(tmp, "wb") as f:
                         efile = EncryptedFile(doc.file).read()
@@ -119,7 +121,7 @@ def download(request, doc_id):
 @login_required
 def deleteDoc(request, doc_id):
     doc = Document.objects.get(pk=doc_id)
-    if not doc.exists():
+    if not doc:
         return render(request, 'pdm/error.html', {"error": {"type": "Not Found", "code": 404, "message": "Document not found"}})
     if request.user != doc.owner:
         return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are not the owner of this document"}})

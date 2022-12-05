@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: vps
-      url: "https://${{ env.HOST }}/pdm"
+      url: "https://${{ env.HOST }}/"
     steps:
     - uses: actions/checkout@v1
     - name: Copy repository contents via scp
@@ -28,6 +28,8 @@ jobs:
       with:
         source: "./*"
         target: ${{ env.TARGET_PATH }}
+        overwrite: true
+        rm: true
  
     - name: Executing remote command
       uses: appleboy/ssh-action@master

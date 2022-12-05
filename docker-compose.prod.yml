@@ -2,7 +2,7 @@ volumes:
   pg_data:
     driver: local
 networks:
-  pdm-internal:
+  pdm_default:
   web:
     external: true
 services:
@@ -15,11 +15,13 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     networks:
-      - pdm-internal
+      - pdm_default
   django:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
     command: >
-      sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+      sh -c "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn patient_data_management.wsgi:application --bind 0.0.0.0:8000"
     ports:
       - 8000:8000
     environment:
@@ -27,17 +29,18 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - DEBUG=0
-      - URL_PREFIX=pdm/
-      # - DOCUMENT_ENCRYPTION_KEY=elRm7Dkq755tSR9t3jQ6U4kqHPsvB8CndGK7laroqQA=
+      # - URL_PREFIX=pdm/
+      - DOCUMENT_ENCRYPTION_KEY=elRm7Dkq755tSR9t3jQ6U4kqHPsvB8CndGK7laroqQA=
     depends_on:
       - db
     networks:
-      - pdm-internal
+      - pdm_default
       - web
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.pdm.entrypoints=https"
-      - "traefik.http.routers.pdm.rule=Host(`cloud.arne-kapell.de`) && PathPrefix(`/pdm`)"
+      - "traefik.http.routers.pdm.rule=Host(`cloud.arne-kapell.de`)"
+      # - "traefik.http.routers.pdm.rule=Host(`cloud.arne-kapell.de`) && PathPrefix(`/pdm`)"
       # - "traefik.http.routers.pdm.middlewares=pdm-removeprefix"
       # - "traefik.http.middlewares.pdm-removeprefix.stripprefix.prefixes=/pdm"
       - "traefik.http.routers.pdm.tls=true"
