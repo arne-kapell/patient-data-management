@@ -31,11 +31,11 @@ class RegistrationForm(UserCreationForm):
             'birth_date', 
             'sex', 
             'phone', 
-            'country'
+            'country',
             'postal_code', 
             'city', 
             'street_name', 
-            'street_number', 
+            'street_number'
         )
 
 
