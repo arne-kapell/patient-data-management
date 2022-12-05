@@ -39,6 +39,23 @@ class RegistrationForm(UserCreationForm):
         )
 
 
+class ChangeableForm(UserChangeForm):
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'first_name',
+            'last_name',
+            'phone', 
+            'country',
+            'postal_code', 
+            'city', 
+            'street_name', 
+            'street_number'
+        )
+
+
+
 class LoginForm(AuthenticationForm):
     class Meta:
         model = User

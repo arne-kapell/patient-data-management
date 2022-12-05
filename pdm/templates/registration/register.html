@@ -63,6 +63,54 @@
         <p class="error">{{ error|escape }}</p>
     {% endfor %} {% endcomment %}
 </div>
+<div>
+    {{ form.birth_date.label_tag }} {{ form.birth_date }}
+    {% comment %} {% for error in form.birth_date.errors %}
+        <p class="error">{{ error|escape }}</p>
+    {% endfor %} {% endcomment %}
+</div>
+<div>
+    {{ form.sex.label_tag }} {{ form.sex }}
+    {% comment %} {% for error in form.sex.errors %}
+        <p class="error">{{ error|escape }}</p>
+    {% endfor %} {% endcomment %}
+</div>
+<div>
+    {{ form.phone.label_tag }} {{ form.phone }}
+    {% comment %} {% for error in form.phone.errors %}
+        <p class="error">{{ error|escape }}</p>
+    {% endfor %} {% endcomment %}
+</div>
+<div>
+    {{ form.country.label_tag }} {{ form.country }}
+    {% comment %} {% for error in form.country.errors %}
+        <p class="error">{{ error|escape }}</p>
+    {% endfor %} {% endcomment %}
+</div>
+<div>
+    {{ form.postal_code.label_tag }} {{ form.postal_code }}
+    {% comment %} {% for error in form.postal_code.errors %}
+        <p class="error">{{ error|escape }}</p>
+    {% endfor %} {% endcomment %}
+</div>
+<div>
+    {{ form.city.label_tag }} {{ form.city }}
+    {% comment %} {% for error in form.city.errors %}
+        <p class="error">{{ error|escape }}</p>
+    {% endfor %} {% endcomment %}
+</div>
+<div>
+    {{ form.street_name.label_tag }} {{ form.street_name }}
+    {% comment %} {% for error in form.street_name.errors %}
+        <p class="error">{{ error|escape }}</p>
+    {% endfor %} {% endcomment %}
+</div>
+<div>
+    {{ form.street_number.label_tag }} {{ form.street_number }}
+    {% comment %} {% for error in form.street_number.errors %}
+        <p class="error">{{ error|escape }}</p>
+    {% endfor %} {% endcomment %}
+</div>
 
 <div style="justify-content: center">
     <input type="submit" value="Register">

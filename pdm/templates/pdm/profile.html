@@ -1,6 +1,6 @@
 {% extends 'pdm/main.html' %}
 
-{% block title %}User: {{ user.username }} {% endblock %}
+{% block title %}User: {{ user.email }} {% endblock %}
 {% block content %}
 <p>{{ user.email }}</p>
 <p>{{ user.first_name }}</p>
@@ -13,4 +13,5 @@
 <p>{{ user.city }}</p>
 <p>{{ user.street_name }}</p>
 <p>{{ user.street_number }}</p>
+<a href="/profile/edit/"><button>Edit</button></a>
 {% endblock %}

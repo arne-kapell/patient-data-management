@@ -1,6 +1,6 @@
 import datetime
 import os
-from pdm.forms import LoginForm, RegistrationForm
+from pdm.forms import LoginForm, RegistrationForm, ChangeableForm
 import werkzeug
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -190,56 +190,16 @@ def sendVerificationEmail(user: User, base_url: str, callback: str = "accounts/v
 @login_required
 @csrf_protect
 def editProfile(request):
-    context = {
-        "form": [
-            {"id": "mail", "type": "email", "label": _("email address"), "placeholder": _(
-                "Enter email"), "required": True, "value": "", "autofocus": True},
-            {"id": "password", "type": "password", "label": _("password"), "placeholder": _(
-                "Enter password"), "required": True, "value": ""},
-            {"id": "password2", "type": "password", "label": _("repeat password"), "placeholder": _(
-                "Repeat password"), "required": True, "value": ""},
-            {"id": "phone", "type": "text", "label": _("phone"), "placeholder": _(
-                "Enter private phone number"), "required": False, "value": ""},
-            {"id": "country", "type": "text", "label": _("country"), "placeholder": _(
-                "Enter country"), "required": False, "value": ""},
-            {"id": "postal_code", "type": "text", "label": _("postal code"), "placeholder": _(
-                "Enter postal code"), "required": False, "value": ""},
-            {"id": "city", "type": "text", "label": _("city"), "placeholder": _(
-                "Enter city name"), "required": False, "value": ""},
-            {"id": "street_name", "type": "text", "label": _("street name"), "placeholder": _(
-                "Enter street name"), "required": False, "value": ""},
-            {"id": "street_number", "type": "text", "label": _("street number"), "placeholder": _(
-                "Enter street number"), "required": False, "value": ""},
-        ]
-    }
+    form = ChangeableForm()
 
     if request.method == 'POST':
-        """ email = request.POST['mail']
-        password = request.POST['password']
-        password2 = request.POST['password2']
-        first_name = request.POST['first_name']
-        last_name = request.POST['last_name']
-        birth_date = request.POST['birth_date']
-        sex = request.POST['sex']
-        phone = request.POST['phone']
-        country = request.POST['country']
-        postal_code = request.POST['postal_code']
-        city = request.POST['city']
-        street_name = request.POST['street_name']
-        street_number = request.POST['street_number']
-        if password != password2:
-            context['error'] = "Passwords do not match"
-        elif User.objects.filter(email=email).exists():
-            context['error'] = "Email already in use"
-        else:
-            user = User.objects.create_user(
-                email=email, password=password, first_name=first_name, last_name=last_name, 
-                birth_date=birth_date, sex=sex, phone=phone, country=country, postal_code=postal_code,
-                city=city, street_name=street_name, street_number=street_number)
-            user.save() """
+        form = ChangeableForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.update()
         return redirect('profile')
 
-    return render(request, 'pdm/edit-profile.html', context)
+    return render(request, 'pdm/edit-profile.html', {"form": form})
 
 
 @csrf_protect
