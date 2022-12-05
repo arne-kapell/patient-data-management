@@ -33,6 +33,20 @@ jobs:
           export POSTGRES_DB=postgres
           while ! docker exec postgres pg_isready -U postgres; do sleep 1; done
           python manage.py test -v 2 --noinput &> $GITHUB_STEP_SUMMARY
+  security-check:
+    runs-on: ubuntu-latest
+    needs: django-test
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v3
+      - name: Scan Django settings for security issues
+        id: check
+        uses: victoriadrake/django-security-check@master
+      - name: Upload output
+        uses: actions/upload-artifact@v2
+        with:
+          name: security-check-output
+          path: output.txt
   deploy:
     runs-on: ubuntu-latest
     needs: django-test
