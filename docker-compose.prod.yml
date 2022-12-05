@@ -64,6 +64,7 @@ services:
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
       #- POSTGRES_EXTRA_OPTS=-Z9 --schema=public --blobs
       #  - POSTGRES_PASSWORD_FILE=/run/secrets/db_password <-- alternative for POSTGRES_PASSWORD (to use with docker secrets)
       - SCHEDULE=@every 2h00m00s
