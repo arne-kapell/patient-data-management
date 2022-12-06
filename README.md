@@ -23,6 +23,8 @@ Die folgenden Services stehen zur Verfügung:
 | PostgreSQL              | -    |
 | adminer (DB-Management) | 8080 |
 
+*Hinweis:* Mails (z.B. für die E-Mail-Verifizierung) werden nicht versendet, sondern in der Konsole (des Django-Servers) ausgegeben.
+
 ### Produktivumgebung
 ```bash
 docker-compose -f docker-compose.prod.yml up -d
@@ -39,3 +41,10 @@ Zusätzlich wird eine lokale traefik-Instanz (als reverse proxy) benötigt, die 
 ---
 0. [Anforderungen bzw. Aufgabenstellung](slides/Laborarbeit2022AufgabeSichereSysteme.pdf)
 1. [Sicherheitsanforderungen & Bedrohungsanalyse](slides/abgabe01.html)
+
+
+## Testplan
+---
+| TestID | Typ        | Beschreibung                                                                                                                                               | Schritte                                                                           | Erwartetes Ergebnis                          | Status |
+| ------ | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | -------------------------------------------- | ------ |
+| T1     | Unit-Tests | Gesundheits- bzw. persönliche Daten dürfen nur nach erfolgreicher Authentifizierung und nach autorisierung (mit den erforderlichen Rechten) abrufbar sein. | Versuchen, Daten ohne vorherigen Login bzw. mit unautorisiertem Benutzer abzurufen | Blockieren mit Fehlermeldung ohne Daten-Leck | ---    |

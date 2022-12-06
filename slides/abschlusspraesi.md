@@ -75,6 +75,11 @@ Projekt: Security by Design (Semester 5)
 
 ---
 <!-- _class: lead -->
+# Werkzeuge
+Entwicklungs-Tools
+
+---
+<!-- _class: lead -->
 # CI/CD
 Pipeline für Build, Test und Deployment
 
