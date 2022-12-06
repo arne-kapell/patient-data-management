@@ -41,8 +41,12 @@ def getAccessibleDocuments(user: User) -> list:
         approved_access = AccessRequest.objects.filter(
             requested_by=user, approved=True)
         for req in approved_access:
+            start = make_aware(datetime.datetime.combine(
+                req.period_start, datetime.time.min))
+            end = make_aware(datetime.datetime.combine(
+                req.period_end, datetime.time.max))
             docs = docs | Document.objects.filter(Q(owner=req.patient) & Q(
-                uploaded_at__gte=req.period_start) & Q(uploaded_at__lte=req.period_end))
+                uploaded_at__gte=start) & Q(uploaded_at__lte=end))
         return docs
     else:
         return []
@@ -91,7 +95,6 @@ def upload(request):
                     pass
                 doc.owner = request.user
                 doc.name = file_name
-                doc.uploaded_at = make_aware(datetime.datetime.now())
                 doc.save()
                 return redirect('docs')
     return render(request, 'pdm/new-doc.html', {"form": form})
