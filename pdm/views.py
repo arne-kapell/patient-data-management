@@ -347,12 +347,8 @@ def requestAccess(request):
         requested_by=request.user, approved=False).reverse()
     context['requests_for_approval'] = AccessRequest.objects.filter(
         patient=request.user, approved=False).reverse()
-    if request.user.role == User.DOCTOR:
-        context['requests_processed'] = AccessRequest.objects.filter(Q(requested_by=request.user) | Q(
-            patient=request.user), Q(approved=True) | Q(denied=True)).reverse()
-    else:
-        context['requests_processed'] = AccessRequest.objects.filter(
-            Q(patient=request.user), Q(approved=True) | Q(denied=True)).reverse()
+    context['requests_processed'] = AccessRequest.objects.filter(Q(requested_by=request.user) | Q(
+        patient=request.user), Q(approved=True) | Q(denied=True)).reverse()
     return render(request, 'pdm/request-access.html', context)
 
 
