@@ -1,8 +1,6 @@
 import datetime
 from django.utils.timezone import make_aware
-import os
 from pdm.forms import LoginForm, RegistrationForm, UserInfoEditForm, PasswordChangeForm, DeleteAccountForm, DocumentUpdateForm, DocumentUploadForm
-import werkzeug
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import update_session_auth_hash
@@ -24,7 +22,7 @@ from django.utils.encoding import force_bytes
 
 from django.utils.translation import gettext_lazy as _
 
-from pdm.tools import extractPageNumber
+from pdm.tools import getPageNumberFromEncryptedFile
 
 
 @login_required
@@ -54,7 +52,7 @@ def getAccessibleDocuments(user: User) -> list:
 
 @login_required
 def docs(request):
-    docs = getAccessibleDocuments(request.user)
+    docs = getAccessibleDocuments(request.user).order_by('-uploaded_at')
     status = request.session.pop("status", None)
     return render(request, 'pdm/docs.html', {"documents": docs, "status": status or ""})
 
@@ -70,7 +68,6 @@ def upload(request):
             file = doc.file
             file_extension = file.name.split(".")[-1]
             file_name = file.name[:-len(file_extension)-1]
-            print(file, file_extension, file_name)
             if file_extension not in settings.ACCEPTED_DOCUMENT_EXTENSIONS:
                 form.add_error(
                     "file", _("File extension must be one of: ") + ", ".join(settings.ACCEPTED_DOCUMENT_EXTENSIONS))
@@ -78,21 +75,8 @@ def upload(request):
                 form.add_error(
                     "file", _("File size must be less than ") + str(settings.MAX_DOCUMENT_SIZE))
             else:
-                try:
-                    tmp_path = "documents/tmp/"
-                    tmp = f"{tmp_path}exif.{file_extension}"
-                    tmp = werkzeug.utils.secure_filename(tmp)
-                    os.mkdir("documents/tmp")
-                    with open(tmp, "wb") as f:
-                        efile = EncryptedFile(doc.file).read()
-                        f.write(efile)
-                    pages = extractPageNumber(tmp)
-                    os.unlink(tmp)
-                    os.rmdir(tmp_path)
-                    doc.pages = pages
-                except Exception as e:
-                    print(e)
-                    pass
+                pages = getPageNumberFromEncryptedFile(file)
+                doc.pages = pages if pages >= 0 else 0
                 doc.owner = request.user
                 doc.name = file_name
                 doc.save()

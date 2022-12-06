@@ -19,7 +19,7 @@ class Document(models.Model):
     pages = models.IntegerField(default=0)
     file = models.FileField(upload_to=get_upload_path)
     description = models.TextField(blank=True)
-    uploaded_at = models.DateTimeField(auto_created=True)
+    uploaded_at = models.DateTimeField(auto_created=True, auto_now_add=True)
     sensitive = models.BooleanField(default=False)
 
     def delete(self, *args, **kwargs):
