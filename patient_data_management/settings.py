@@ -163,6 +163,7 @@ NO_PREVIEW_DOCUMENT_EXTENSIONS = [
     "doc",
     "odt"
 ]
+MAX_DOCUMENT_SIZE = 10 * 1024 * 1024  # in bytes (10 MB)
 
 FILE_UPLOAD_HANDLERS = [
     "encrypted_files.uploadhandler.EncryptedFileUploadHandler",

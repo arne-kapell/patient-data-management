@@ -1,6 +1,6 @@
 {% extends 'pdm/main.html' %}
 
-{% block title %}Upload Document{% endblock %}
+{% block title %}Update Document{% endblock %}
 {% block style %}
 #upload-form {
     display: flex;
@@ -17,6 +17,12 @@
     align-items: center;
     margin: 0.5em;
 }
+#file-input :not(#id_file, label) {
+    display: none;
+}
+#file-input #text {
+    display: none;
+}
 {% endblock %}
 {% block content %}
 {% if form.errors %}
@@ -28,19 +34,16 @@
     {% endfor %}
 </div>
 {% endif %}
-<h2>Upload Document</h2>
+<h2>Upload updated {{ doc.name }}</h2>
 <form id="upload-form" method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    <div>
+    <div id="file-input">
         {{ form.file.label_tag }} {{ form.file }}
     </div>
     <div>
         {{ form.description.label_tag }} {{ form.description }}
     </div>
-    <div>
-        {{ form.sensitive.label_tag }} {{ form.sensitive }}
-    </div>
-    <input type="submit" value="Upload">
+    <input type="submit" value="Update">
 </form>
 {% comment %} <form action="{% url 'upload' %}" method="post" enctype="multipart/form-data" id="upload-form">
     {% csrf_token %}
@@ -48,4 +51,11 @@
     <input type="submit" value="Upload" style="margin-bottom: 10px;" /><br />
     <span style="max-width: 50%;"><input type="checkbox" name="is_sensitive" value="0">This document is sensitive and is not to be shared with anyone that I have not explicitly given permission to view it.</input></span>
 </form> {% endcomment %}
+{% endblock %}
+{% block js %}
+const label = document.getElementById('file-input').querySelector('label');
+const input = document.getElementById('file-input').querySelector('input');
+document.getElementById('file-input').innerHTML = null;
+document.getElementById('file-input').appendChild(label);
+document.getElementById('file-input').appendChild(input);
 {% endblock %}

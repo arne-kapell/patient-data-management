@@ -147,6 +147,24 @@
                 filter: blur(0);
                 box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             }
+            .badge {
+                border-radius: 5rem;
+                padding: 0.5rem;
+                border: 1px solid #000;
+                background-color: var(--secondary)
+            }
+            .badge-approved {
+                background-color: var(--primary);
+                color: white;
+            }
+            .badge-denied {
+                background-color: red;
+                color: white;
+            }
+            .badge-secondary {
+                border: 1px solid #000;
+                background-color: var(--secondary)
+            }
             {% block style %}{% endblock style %}
         </style>
     </head>
@@ -195,7 +213,7 @@
             window.onload = () => {
                 document.title = document.title + ' - ' + document.getElementById('title').innerText;
             }
+            {% block js %}{% endblock %}
         </script>
-        {% block js %}{% endblock %}
     </body>
 </html>

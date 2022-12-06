@@ -26,20 +26,6 @@
     padding: 1rem;
     overflow-x: auto;
 }
-.badge {
-    border-radius: 5rem;
-    padding: 0.5rem;
-    border: 1px solid #000;
-    background-color: var(--secondary)
-}
-.badge-approved {
-    background-color: var(--primary);
-    color: white;
-}
-.badge-denied {
-    background-color: red;
-    color: white;
-}
 {% endblock %}
 {% block content %}
 <div style="margin-bottom: 1rem;"></div>
@@ -78,7 +64,7 @@
     <span style="margin-left: 1rem;" class="badge badge-{% if req.approved %}approved{% elif req.denied %}denied{% endif %}">{{ req.approved|yesno:"Approved,Denied" }}</span>
     <span style="margin-left: 1rem;">{{ req.approved_or_denied_at }}</span>
     {% else %}
-    <span style="margin-left: 1rem;" class="badge">Pending</span>
+    <span style="margin-left: 1rem;" class="badge badge-secondary">Pending</span>
     {% endif %}
     {% if not req.approved and not req.denied %}
     <a href="/verify/delete/{{ req.uid }}" style="margin-left: 10px;"><button class="warning">Delete</button></a>

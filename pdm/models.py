@@ -38,7 +38,7 @@ class AccessRequest(models.Model):
     patient = models.ForeignKey(
         'User', on_delete=models.CASCADE, related_name="patient")
     requested_at = models.DateTimeField(auto_now_add=True)
-    doctor = models.ForeignKey(
+    requested_by = models.ForeignKey(
         'User', on_delete=models.CASCADE, related_name="doctor")
     period_start = models.DateField()
     period_end = models.DateField()
