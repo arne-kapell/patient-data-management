@@ -1,4 +1,5 @@
 import datetime
+from django.utils.timezone import make_aware
 import os
 from pdm.forms import LoginForm, RegistrationForm, UserInfoEditForm, PasswordChangeForm, DeleteAccountForm, DocumentUpdateForm, DocumentUploadForm
 import werkzeug
@@ -90,6 +91,7 @@ def upload(request):
                     pass
                 doc.owner = request.user
                 doc.name = file_name
+                doc.uploaded_at = make_aware(datetime.datetime.now())
                 doc.save()
                 return redirect('docs')
     return render(request, 'pdm/new-doc.html', {"form": form})
