@@ -1,6 +1,8 @@
 volumes:
   pg_data:
     driver: local
+  pdm_docs:
+    driver: local
 networks:
   pdm_default:
   web:
@@ -34,6 +36,8 @@ services:
       # - SECRET_KEY=secret
       - DOCUMENT_ENCRYPTION_KEY=elRm7Dkq755tSR9t3jQ6U4kqHPsvB8CndGK7laroqQA=
       - EMAIL_HOST_PASSWORD=PW4patientdatamanagement
+    volumes:
+      - pdm_docs:/code/documents
     depends_on:
       - db
     networks:
