@@ -171,8 +171,8 @@ FILE_UPLOAD_HANDLERS = [
     "django.core.files.uploadhandler.TemporaryFileUploadHandler"
 ]
 
-AES_KEY = b64decode(os.getenv("DOCUMENT_ENCRYPTION_KEY",
-                    default=b64encode(os.urandom(32))))
+AES_KEY = b64decode(os.environ.get(
+    "DOCUMENT_ENCRYPTION_KEY", default=b64encode(os.urandom(32)).decode("utf-8")))
 
 MAX_PAST_DAYS_FOR_ACCESS_REQUEST = 30 * 6  # 6 months
 MAX_FUTURE_DAYS_FOR_ACCESS_REQUEST = 30 * 6  # 6 months
