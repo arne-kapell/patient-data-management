@@ -112,7 +112,6 @@ def download(request, doc_id):
     if request.user != doc.owner and doc not in getAccessibleDocuments(request.user):
         return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are not the owner of this document"}})
     return StreamingHttpResponse(EncryptedFile(doc.file), content_type='application/octet-stream', headers={'Content-Disposition': 'attachment; filename=' + doc.owner.last_name + '_' + doc_id.split('-')[0] + '.' + doc.file.name.split('.')[-1]})
-    # return FileResponse(EncryptedFile(doc.file), as_attachment=True, filename=doc_id + "." + doc.file.path.split('.')[-1])
 
 
 @login_required
