@@ -41,7 +41,7 @@ def getAccessibleDocuments(user: User) -> list:
             requested_by=user, approved=True)
         for req in approved_access:
             docs = docs | Document.objects.filter(Q(owner=req.patient) & Q(
-                uploaded_at__gte=req.period_start) & Q(uploaded_at__lte=req.period_end) & Q(sensitive=False))
+                uploaded_at__gte=req.period_start) & Q(uploaded_at__lte=req.period_end))
         return docs
     else:
         return []
@@ -229,6 +229,7 @@ def editProfile(request):
 
     return render(request, 'pdm/edit-profile.html', {"form": form})
 
+
 @login_required
 @csrf_protect
 def changePassword(request):
@@ -260,7 +261,6 @@ def deleteProfile(request):
                 form.add_error("password", "Incorrect Password")
 
     return render(request, 'pdm/delete-profile.html', {"form": form})
-    
 
 
 @csrf_protect

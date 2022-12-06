@@ -86,13 +86,18 @@
 {% else %}
 <p style="font-style: italic;">No requests for approval found.</p>
 {% endif %}
+
 {% if requests_processed|length > 0 %}
 <h3 style="margin-top: 50px;">History</h3>
 {% for req in requests_processed %}
 <div class="card request-row">
     <span style="margin-right: 1rem; font-style: italic;">{{ req.requested_at }}</span>
     <span class="badge badge-secondary" style="margin-right: 1rem;">{% if req.patient == user %}incoming{% else %}outgoing{% endif %}</span>
+    {% if req.patient == user %}
+    <h3 style="margin: 0;">{{ req.requested_by.last_name }}, {{ req.requested_by.first_name }}</h3>
+    {% else %}
     <h3 style="margin: 0;">{{ req.patient.last_name }}, {{ req.patient.first_name }}</h3>
+    {% endif %}
     <span style="flex-grow: 1; margin: 0 2rem; text-align: start;">{{ req.period_start }} - {{ req.period_end }}</span>
     <span class="badge badge-{% if req.approved %}approved{% elif req.denied %}denied{% endif %}">{{ req.approved|yesno:"Approved,Denied" }}</span>
     <span style="margin-left: 1rem;">{{ req.approved_or_denied_at }}</span>
