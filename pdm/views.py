@@ -1,9 +1,11 @@
 import datetime
 import os
-from pdm.forms import LoginForm, RegistrationForm, ChangeableForm
+from pdm.forms import LoginForm, RegistrationForm, UserInfoEditForm, PasswordChangeForm, DeleteAccountForm
 import werkzeug
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.hashers import check_password
 from django.views.decorators.csrf import csrf_protect
 from django.http import FileResponse, StreamingHttpResponse
 from django.conf import settings
@@ -188,11 +190,11 @@ def sendVerificationEmail(user: User, base_url: str, callback: str = "accounts/v
 @login_required
 @csrf_protect
 def editProfile(request):
-    form = ChangeableForm(instance=request.user)
+    form = UserInfoEditForm(instance=request.user)
 
     if request.method == 'POST':
-        form = ChangeableForm(request.POST, instance=request.user)
-        print(form.changed_data, form.is_valid())
+        form = UserInfoEditForm(request.POST, instance=request.user)
+        # print(form.changed_data, form.is_valid())
         if form.is_valid():
             user = form.save(commit=False)
             if 'email' in form.changed_data:
@@ -203,12 +205,45 @@ def editProfile(request):
                     sendVerificationEmail(
                         user, f"{'http' if settings.DEBUG else 'https'}://{request.get_host()}/")
                     user.save()
-                    return redirect('profile')
+                    return render(request, 'pdm/basic-out.html', {"title": "Confirm Mail", "heading": "Successfully Changed Personal Information", "messages": ["Please confirm your email address to confirm the new email address"]})
             else:
                 user.save()
                 return redirect('profile')
 
     return render(request, 'pdm/edit-profile.html', {"form": form})
+
+@login_required
+@csrf_protect
+def changePassword(request):
+    form = PasswordChangeForm(request.user)
+    if request.method == 'POST':
+        form = PasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():    # form.clean_old_password() and form.clean_new_password2():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            return redirect('profile')
+    else:
+        form = PasswordChangeForm(request.user)
+    return render(request, 'pdm/change-password.html', {"form": form})
+
+
+@login_required
+def deleteProfile(request):
+    form = DeleteAccountForm()
+    if request.method == 'POST':
+        form = DeleteAccountForm(data=request.POST)
+        pw = request.user.password
+        if form.is_valid():
+            pwEntered = form.cleaned_data.get('password')
+            match = check_password(pwEntered, pw)
+            if match:
+                request.user.delete()
+                return redirect('login')
+            else:
+                form.add_error("password", "Incorrect Password")
+
+    return render(request, 'pdm/delete-profile.html', {"form": form})
+    
 
 
 @csrf_protect
