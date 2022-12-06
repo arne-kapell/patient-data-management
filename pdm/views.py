@@ -153,6 +153,7 @@ def profilePage(request):
 @csrf_protect
 def loginPage(request):
     form = LoginForm()
+    next_page = request.GET.get('next')
     if request.user.is_authenticated:
         return redirect('index')
     if request.method == 'POST':
@@ -165,10 +166,10 @@ def loginPage(request):
                 if not user.verified:
                     sendVerificationEmail(
                         user, f"{'http' if settings.DEBUG else 'https'}://{request.get_host()}/")
-                next_page = request.GET.get('next')
+                next_page = request.POST.get('next')
                 return redirect(next_page or 'index')
         form.add_error(None, "Invalid username or password")
-    return render(request, 'registration/login.html', {"form": form})
+    return render(request, 'registration/login.html', {"form": form, "next": next_page})
 
 
 @login_required
