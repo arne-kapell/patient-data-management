@@ -1,5 +1,5 @@
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm, AuthenticationForm, PasswordChangeForm
 from django.conf import settings
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm, AuthenticationForm
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
@@ -42,7 +42,7 @@ class RegistrationForm(UserCreationForm):
         )
 
 
-class ChangeableForm(forms.ModelForm):
+class UserInfoEditForm(forms.ModelForm):
     email = forms.EmailField(required=False)
     phone = forms.CharField(required=False)
     country = forms.CharField(required=False)
@@ -62,6 +62,10 @@ class ChangeableForm(forms.ModelForm):
             'street_name',
             'street_number'
         )
+
+
+class DeleteAccountForm(forms.Form):
+    password = forms.CharField(widget=forms.PasswordInput)
 
 
 class LoginForm(AuthenticationForm):

@@ -31,6 +31,20 @@
     <div><span>City: </span><span>{{ user.city }}</span></div>
     <div><span>Street name: </span><span>{{ user.street_name }}</span></div>
     <div><span>Street number: </span><span>{{ user.street_number }}</span></div>
+    {% if user.role == 1 %}
+        <div><span>Role: </span><span>Patient</span></div>
+    {% endif %}
+    {% if user.role == 2 %}
+        <div><span>Role: </span><span>Doctor</span></div>
+    {% endif %}
+    {% if user.role == 3 %}
+        <div><span>Role: </span><span>Verificator</span></div>
+    {% endif %}
+
 </div>
-<a href="/profile/edit/"><button>Edit</button></a>
+<p>
+    <a href="/profile/edit/"><button>Edit</button></a>
+    <a href="/profile/change-password/"><button>Change password</button></a>
+    <a href="/profile/delete/"><button>Delete account</button></a>
+</p>
 {% endblock %}

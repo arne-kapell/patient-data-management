@@ -3,14 +3,14 @@
 {% block title %}Edit personal information{% endblock %}
 
 {% block style %}
-#register-form {
+#user-info-edit {
     display: flex;
     flex-direction: column;
     min-width:20%;
     width: min-content;
     margin: auto;
 }
-#register-form div {
+#user-info-edit div {
     width: 100%;
     display: flex;
     flex-direction: row;
@@ -28,7 +28,7 @@
 {% endif %}
 
 <h2>Edit personal information of {{ user.first_name }} {{ user.last_name }}</h2>
-<form id="register-form" method="post" action="{% url 'edit-profile' %}">
+<form id="user-info-edit" method="post" action="{% url 'edit-profile' %}">
 {% csrf_token %}
 <div>
     {{ form.email.label_tag }} {{ form.email }}
@@ -78,6 +78,6 @@
 </div>
 </form>
 
-<a href="{% url 'profile' %}"><button>Back</button></a>
+<p><a href="{% url 'profile' %}"><button>Back</button></a></p>
 
 {% endblock %}
