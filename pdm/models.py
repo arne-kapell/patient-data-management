@@ -22,6 +22,10 @@ class Document(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
     sensitive = models.BooleanField(default=False)
 
+    def delete(self, *args, **kwargs):
+        self.file.delete()
+        return super().delete(*args, **kwargs)
+
 
 class Note(models.Model):
     uid = models.UUIDField(

@@ -130,7 +130,6 @@ def deleteDoc(request, doc_id):
         return render(request, 'pdm/error.html', {"error": {"type": "Not Found", "code": 404, "message": "Document not found"}})
     if request.user != doc.owner:
         return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are not the owner of this document"}})
-    doc.file.delete()
     doc.delete()
     request.session['status'] = "Successfully deleted document"
     return redirect('docs')
