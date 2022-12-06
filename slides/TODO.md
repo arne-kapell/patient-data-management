@@ -7,11 +7,11 @@
 
 ## App-Improvements **--Finn**
 
-* [ ] Teilen mit Patienten
-* [ ] Dokumente "bearbeiten" (update)
+* [x] Teilen mit Patienten
+* [x] Dokumente "bearbeiten" (update)
 * [x] Benutzer-Profile mit pers. Daten (Geburtstag, Geschlecht, etc.)
 * [-] Account-Verwaltung (Passwort-Reset, Löschen, Mail-Verifizierung, etc.)
-* [ ] (*CASCADING* für *AccessRequests* prüfen)
+* [-] (*CASCADING* für *AccessRequests* prüfen)
 
 ## Security-Features
 

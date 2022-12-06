@@ -36,6 +36,7 @@
         <span style="margin-right: 2rem;">{{ doc.uploaded_at }}</span>
         <a href="/preview/{{ doc.uid }}" target="_blank"><button>View</button></a>
         <a href="/download/{{ doc.uid }}" style="margin-left: 10px;"><button class="secondary">Download</button></a>
+        {% if doc.owner == user or user.role == 2 %}<a href="/update/{{ doc.uid }}" style="margin-left: 10px;"><button class="secondary">Update</button></a>{% endif %}
         {% if doc.owner == user %}
         <a href="/delete/{{ doc.uid }}" style="margin-left: 10px;"><button class="warning">Delete</button></a>
         {% endif %}

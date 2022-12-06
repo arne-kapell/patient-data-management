@@ -1,6 +1,6 @@
 import datetime
 import os
-from pdm.forms import LoginForm, RegistrationForm, ChangeableForm
+from pdm.forms import DocumentUpdateForm, DocumentUploadForm, LoginForm, RegistrationForm, ChangeableForm
 import werkzeug
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -33,16 +33,14 @@ def index(request):
 
 def getAccessibleDocuments(user: User) -> list:
     """Return a list of documents that the user has access to."""
-    if user.role == User.DOCTOR:
+    if user.role != User.VERIFICATOR:
         docs = Document.objects.filter(owner=user)
         approved_access = AccessRequest.objects.filter(
-            doctor=user, approved=True)
+            requested_by=user, approved=True)
         for req in approved_access:
             docs = docs | Document.objects.filter(Q(owner=req.patient) & Q(
                 uploaded_at__gte=req.period_start) & Q(uploaded_at__lte=req.period_end) & Q(sensitive=False))
         return docs
-    elif user.role == User.PATIENT:
-        return Document.objects.filter(owner=user)
     else:
         return []
 
@@ -57,22 +55,25 @@ def docs(request):
 @login_required
 @csrf_protect
 def upload(request):
-    error_message = None
+    form = DocumentUploadForm()
     if request.method == 'POST':
-        if 'file' in request.FILES:
-            sensitive = bool(request.POST.get('is_sensitive', False))
-            print(sensitive)
-            file = request.FILES['file']
-            file_format: str = file.name.split('.')[-1]
-            allowed: list = settings.ACCEPTED_DOCUMENT_EXTENSIONS
-            if file_format.lower() in allowed and file.size <= 10000000:  # 10 MB
-                doc = Document(owner=request.user, file=file,
-                               name=file.name[:-len(file_format)-1], sensitive=sensitive)
-                doc.save()
-                request.session['status'] = "Successfully uploaded document"
+        form = DocumentUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            doc = form.save(commit=False)
+            file = doc.file
+            file_extension = file.name.split(".")[-1]
+            file_name = file.name[:-len(file_extension)-1]
+            print(file, file_extension, file_name)
+            if file_extension not in settings.ACCEPTED_DOCUMENT_EXTENSIONS:
+                form.add_error(
+                    "file", _("File extension must be one of: ") + ", ".join(settings.ACCEPTED_DOCUMENT_EXTENSIONS))
+            elif file.size > settings.MAX_DOCUMENT_SIZE:
+                form.add_error(
+                    "file", _("File size must be less than ") + str(settings.MAX_DOCUMENT_SIZE))
+            else:
                 try:
                     tmp_path = "documents/tmp/"
-                    tmp = f"{tmp_path}exif.{file_format}"
+                    tmp = f"{tmp_path}exif.{file_extension}"
                     tmp = werkzeug.utils.secure_filename(tmp)
                     os.mkdir("documents/tmp")
                     with open(tmp, "wb") as f:
@@ -82,16 +83,14 @@ def upload(request):
                     os.unlink(tmp)
                     os.rmdir(tmp_path)
                     doc.pages = pages
-                    doc.save()
                 except Exception as e:
                     print(e)
                     pass
+                doc.owner = request.user
+                doc.name = file_name
+                doc.save()
                 return redirect('docs')
-            else:
-                error_message = "File is not allowed or too big"
-        else:
-            error_message = 'No file selected'
-    return render(request, 'pdm/new-doc.html', {"upload_error": error_message or "", "allowed": ", ".join(["." + e for e in settings.ACCEPTED_DOCUMENT_EXTENSIONS])})
+    return render(request, 'pdm/new-doc.html', {"form": form})
 
 
 @login_required
@@ -135,6 +134,25 @@ def deleteDoc(request, doc_id):
     doc.delete()
     request.session['status'] = "Successfully deleted document"
     return redirect('docs')
+
+
+@login_required
+def updateDoc(request, doc_id):
+    doc = Document.objects.get(pk=doc_id)
+    if not doc:
+        return render(request, 'pdm/error.html', {"error": {"type": "Not Found", "code": 404, "message": "Document not found"}})
+    form = DocumentUpdateForm(instance=doc)
+    if request.method == 'POST':
+        prev_ext = doc.file.name.split('.')[-1]
+        form = DocumentUpdateForm(request.POST, instance=doc)
+        if form.is_valid():
+            if doc.file.name.split('.')[-1] != prev_ext:
+                form.add_error(
+                    "file", _("File extension cannot be changed"))
+            else:
+                form.save()
+                return redirect('docs')
+    return render(request, 'pdm/update-doc.html', {"form": form, "doc": doc})
 
 
 @login_required
@@ -214,7 +232,7 @@ def editProfile(request):
 @csrf_protect
 def registerPage(request):
     form = RegistrationForm()
-    if request.user.is_authenticated: 
+    if request.user.is_authenticated:
         return redirect('index')
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
@@ -279,10 +297,10 @@ def requestAccess(request):
         if period_start > today or period_start < min_date or period_end > max_date or period_end < today:
             return render(request, 'pdm/error.html', {"error": {"type": "Bad Request", "code": 400, "message": "Invalid date range"}})
         access_request = AccessRequest.objects.create(
-            patient=patient, doctor=request.user, period_start=period_start, period_end=period_end)
+            patient=patient, requested_by=request.user, period_start=period_start, period_end=period_end)
         access_request.save()
         existing_candidates = AccessRequest.objects.filter(
-            patient=patient, doctor=request.user).exclude(pk=access_request.pk)
+            patient=patient, requested_by=request.user, denied=False).exclude(pk=access_request.pk)
         for candidate in existing_candidates:
             if candidate.period_start <= period_start and candidate.period_end >= period_end:
                 access_request.delete()
@@ -292,11 +310,11 @@ def requestAccess(request):
     context['min_date'] = str(min_date)
     context['max_date'] = str(max_date)
     context['requests_sent'] = AccessRequest.objects.filter(
-        doctor=request.user, approved=False).reverse()
+        requested_by=request.user, approved=False).reverse()
     context['requests_for_approval'] = AccessRequest.objects.filter(
         patient=request.user, approved=False).reverse()
     if request.user.role == User.DOCTOR:
-        context['requests_processed'] = AccessRequest.objects.filter(Q(doctor=request.user) | Q(
+        context['requests_processed'] = AccessRequest.objects.filter(Q(requested_by=request.user) | Q(
             patient=request.user), Q(approved=True) | Q(denied=True)).reverse()
     else:
         context['requests_processed'] = AccessRequest.objects.filter(
@@ -311,8 +329,8 @@ def approveOrDeny(request, req_id, action="deny"):
     access_request = AccessRequest.objects.filter(pk=req_id).first()
     if not access_request:
         return render(request, 'pdm/error.html', {"error": {"type": "Not Found", "code": 404, "message": "Request not found"}})
-    if request.user.role == User.DOCTOR and access_request.doctor != request.user:
-        return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are not the doctor in this request"}})
+    if request.user.role == User.DOCTOR and access_request.requested_by != request.user:
+        return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are not the requestor in this request"}})
     if request.user.role == User.PATIENT and access_request.patient != request.user:
         return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are not the patient in this request"}})
     if action not in actions:
@@ -335,8 +353,8 @@ def deleteRequest(request, req_id):
     access_request = AccessRequest.objects.filter(pk=req_id).first()
     if not access_request:
         return render(request, 'pdm/error.html', {"error": {"type": "Not Found", "code": 404, "message": "Request not found"}})
-    if request.user.role == User.DOCTOR and access_request.doctor != request.user:
-        return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are not the doctor in this request"}})
+    if request.user.role == User.DOCTOR and access_request.requested_by != request.user:
+        return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are not the requestor in this request"}})
     access_request.delete()
     return redirect('request-access')
 
