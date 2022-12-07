@@ -15,6 +15,17 @@ import os
 from pathlib import Path
 import sys
 
+
+def get_secret(secret_name, default=None):
+    """Get secret from environment or return default"""
+    try:
+        file = os.environ[f"{secret_name}_FILE"]
+        with open(file) as f:
+            return f.read().strip()
+    except KeyError:
+        return os.environ.get(secret_name, default)
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -23,8 +34,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get(
-    "SECRET_KEY", "django-insecure-43&7229&ro7_g(to0494&#is$^g=%i*fxf&0bug3)r6bdroll!")
+SECRET_KEY = get_secret(
+    "SECRET_KEY", default="django-insecure-43&7229&ro7_g(to0494&#is$^g=%i*fxf&0bug3)r6bdroll!")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # use env if available
@@ -84,7 +95,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         'NAME': os.environ.get('POSTGRES_NAME', 'postgres'),
         'USER': os.environ.get('POSTGRES_USER', 'postgres'),
-        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'postgres'),
+        'PASSWORD': get_secret('POSTGRES_PASSWORD', default='postgres'),
         'HOST': os.environ.get('POSTGRES_HOST', 'db'),
         'PORT': os.environ.get('POSTGRES_PORT', 5432),
     },
@@ -165,7 +176,7 @@ FILE_UPLOAD_HANDLERS = [
     "django.core.files.uploadhandler.TemporaryFileUploadHandler"
 ]
 
-AES_KEY = b64decode(os.environ.get(
+AES_KEY = b64decode(get_secret(
     "DOCUMENT_ENCRYPTION_KEY", default="elRm7Dkq755tSR9t3jQ6U4kqHPsvB8CndGK7laroqQA="))  # 32 bytes, base64 encoded
 
 MAX_PAST_DAYS_FOR_ACCESS_REQUEST = 30 * 6  # 6 months
@@ -217,7 +228,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' if DEBUG else '
 
 MAILER_EMAIL_BACKEND = EMAIL_BACKEND
 EMAIL_HOST = os.environ.get("EMAIL_HOST", default="smtp.strato.de")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", default="")
+EMAIL_HOST_PASSWORD = get_secret("EMAIL_HOST_PASSWORD", default="")
 EMAIL_HOST_USER = os.environ.get(
     "EMAIL_HOST_USER", default="no-reply@cloud.arne-kapell.de")
 EMAIL_PORT = 465
