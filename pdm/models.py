@@ -1,3 +1,4 @@
+import hashlib
 import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractUser
@@ -69,6 +70,11 @@ class VerificationRequest(models.Model):
         'User', on_delete=models.CASCADE, null=True, related_name="processed_by")
 
 
+def compute_tag_line(instance: any) -> str:
+    if instance.first_name and instance.last_name:
+        return f"{instance.first_name.replace(' ', '')}.{instance.last_name.replace(' ', '')}#{str(hash(instance.email)).replace('-', '')[:6]}"
+
+
 class User(AbstractUser):
     username = None
     email = models.EmailField(_('email address'), unique=True)
@@ -77,12 +83,13 @@ class User(AbstractUser):
     birth_date = models.DateField(null=True)
     sex = models.CharField(max_length=255, null=True)
     phone = models.CharField(max_length=255, null=True)
-    # address
     street_name = models.CharField(max_length=255, null=True)
     street_number = models.CharField(max_length=255, null=True)
     city = models.CharField(max_length=255, null=True)
     postal_code = models.CharField(max_length=255, null=True)
     country = models.CharField(max_length=255, null=True)
+    tag_line = models.CharField(
+        max_length=255, null=True, unique=True, blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -103,9 +110,13 @@ class User(AbstractUser):
 
     objects = UserManager()
 
-    # def save(self, *args, **kwargs):
-    #     if self.role == User.VERIFICATOR:
-    #         self.is_staff = True  # TODO: remove and implement in UI
-    #     elif not self.is_superuser:
-    #         self.is_staff = False
-    #     super().save(*args, **kwargs)
+    indexes = [
+        models.Index(fields=['email']),
+        models.Index(fields=['role']),
+        models.Index(fields=['tag_line'])
+    ]
+
+    def save(self, *args, **kwargs):
+        if not self.tag_line:
+            self.tag_line = compute_tag_line(self)
+        super().save(*args, **kwargs)

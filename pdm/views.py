@@ -449,3 +449,8 @@ def approveOrDenyVerify(request, req_id, action="deny"):  # TODO: add reason for
         v_request.target_user.save()
     v_request.save()
     return redirect('request-verify')
+
+
+def get_available_tag_lines(user: User): # unfiltered
+    return User.objects.values_list('tag_line', flat=True).distinct().exclude(tag_line=user.tag_line)
+    
