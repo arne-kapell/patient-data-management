@@ -9,11 +9,11 @@ networks:
     external: true
 secrets:
   django_secret_key:
-    file: /secrets/secret_key
+    file: /secrets/pdm/secret_key
   document_encryption_key:
-    file: /secrets/document_encryption_key
+    file: /secrets/pdm/document_encryption_key
   mail_password:
-    file: /secrets/mail_password
+    file: /secrets/pdm/mail_password
 services:
   db:
     image: postgres:latest
