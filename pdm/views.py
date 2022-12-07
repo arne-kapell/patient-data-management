@@ -24,6 +24,8 @@ from django.utils.translation import gettext_lazy as _
 
 from pdm.tools import getPageNumberFromEncryptedFile
 
+from django.urls import Resolver404, get_resolver
+
 
 @login_required
 def index(request):
@@ -167,7 +169,12 @@ def loginPage(request):
                     sendVerificationEmail(
                         user, f"{'http' if settings.DEBUG else 'https'}://{request.get_host()}/")
                 next_page = request.POST.get('next')
-                return redirect(next_page if next_page and next_page != 'None' else 'index')
+                try:
+                    get_resolver().resolve(next_page)
+                    return redirect(next_page)
+                except Resolver404:
+                    pass
+                return redirect('index')
         form.add_error(None, "Invalid username or password")
     return render(request, 'registration/login.html', {"form": form, "next": next_page})
 
