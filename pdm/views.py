@@ -167,7 +167,7 @@ def loginPage(request):
                     sendVerificationEmail(
                         user, f"{'http' if settings.DEBUG else 'https'}://{request.get_host()}/")
                 next_page = request.POST.get('next')
-                return redirect(next_page or 'index')
+                return redirect(next_page if next_page and next_page != 'None' else 'index')
         form.add_error(None, "Invalid username or password")
     return render(request, 'registration/login.html', {"form": form, "next": next_page})
 
@@ -307,10 +307,10 @@ def requestAccess(request):
     max_date = datetime.date.today(
     ) + datetime.timedelta(days=settings.MAX_FUTURE_DAYS_FOR_ACCESS_REQUEST)
     if request.method == 'POST':
-        patient_mail = request.POST['patient-mail']
+        patient_tag = request.POST['patient-tag']
         period_start = request.POST['start-date']
         period_end = request.POST['end-date']
-        patient = User.objects.filter(email=patient_mail).first()
+        patient = User.objects.filter(tag_line=patient_tag).first()
         if not patient:
             return render(request, 'pdm/error.html', {"error": {"type": "Bad Request", "code": 400, "message": "Patient not found"}})
         if patient.email == request.user.email:
@@ -339,6 +339,7 @@ def requestAccess(request):
         patient=request.user, approved=False).reverse()
     context['requests_processed'] = AccessRequest.objects.filter(Q(requested_by=request.user) | Q(
         patient=request.user), Q(approved=True) | Q(denied=True)).reverse()
+    context['tags'] = get_available_tag_lines(request.user)
     return render(request, 'pdm/request-access.html', context)
 
 
@@ -452,5 +453,5 @@ def approveOrDenyVerify(request, req_id, action="deny"):  # TODO: add reason for
 
 
 def get_available_tag_lines(user: User): # unfiltered
-    return User.objects.values_list('tag_line', flat=True).distinct().exclude(tag_line=user.tag_line)
+    return User.objects.values_list('tag_line', flat=True).distinct().exclude(tag_line=user.tag_line).exclude(Q(tag_line=None) | Q(tag_line=""))
     

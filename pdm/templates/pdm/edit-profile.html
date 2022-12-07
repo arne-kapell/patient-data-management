@@ -27,7 +27,7 @@
 </div>
 {% endif %}
 
-<h2>Edit personal information of {{ user.first_name }} {{ user.last_name }}</h2>
+<h2>Edit personal information of {{ user.first_name }} {{ user.last_name }} ({{ user.tag_line }})</h2>
 <form id="user-info-edit" method="post" action="{% url 'edit-profile' %}">
 {% csrf_token %}
 <div>

@@ -26,7 +26,7 @@
     {% for doc in documents %}
     <div class="card doc-row{% if doc.sensitive %} blurred{% endif %}">
         {% if doc.owner != user %}
-        <span style="margin-right: 10px;">{{ doc.owner.last_name }}, {{ doc.owner.first_name }}({{ doc.owner.email }})</span>
+        <span style="margin-right: 10px;">{{ doc.owner.tag_line }}</span>
         {% endif %}
         <h3 style="margin: 0;">{{ doc.name }}</h3>
         {% if doc.pages > 0 %}

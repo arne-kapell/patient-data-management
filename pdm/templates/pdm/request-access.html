@@ -37,8 +37,14 @@
 <form action="{% url 'request-access' %}" method="post" enctype="multipart/form-data" id="request-form">
     {% csrf_token %}
     <div>
-        <label for="patient-mail">Patient Email</label>
-        <input type="email" name="patient-mail" placeholder="Patient Email" required>
+        <label for="patient-tag">Patient</label>
+        <select name="patient-tag" required>
+            <option name="patient-tag" value="" disabled selected>Select a patient</option>
+            {% for tag in tags %}
+            <option value="{{ tag }}">{{ tag }}</option>
+            {% endfor %}
+        </select>
+        {% comment %} <input type="" name="patient-tag" placeholder="Patient Tag" required> {% endcomment %}
     </div>
     <div>
         <label for="start-date">Start date</label>
@@ -55,7 +61,7 @@
 {% for req in requests_sent %}
 <div class="card request-row">
     <span style="margin-right: 2rem; font-style: italic;">{{ req.requested_at }}</span>
-    <h3 style="margin: 0;">{{ req.patient.last_name }}, {{ req.patient.first_name }}</h3>
+    <h3 style="margin: 0;">{{ req.patient.tag_line }}</h3>
     {% comment %} <span style="flex-grow: 1; margin: 0 2rem; text-align: start;">{{ doc.description }}</span> {% endcomment %}
     <span style="flex-grow: 1; margin: 0 2rem; text-align: start;">{{ req.period_start }} - {{ req.period_end }}</span>
     {% comment %} <a href="/preview/{{ doc.uid }}" target="_blank"><button>View</button></a>
@@ -72,7 +78,7 @@
 {% for req in requests_for_approval %}
 <div class="card request-row">
     <span style="margin-right: 2rem; font-style: italic;">{{ req.requested_at }}</span>
-    <h3 style="margin: 0;">{{ req.requested_by.last_name }}, {{ req.requested_by.first_name }}</h3>
+    <h3 style="margin: 0;">{{ req.requested_by.tag_line }}</h3>
     <span style="flex-grow: 1; margin: 0 2rem; text-align: start;">{{ req.period_start }} - {{ req.period_end }}</span>
     {% if req.approved or req.denied %}
     <span class="badge badge-{% if req.approved %}approved{% elif req.denied %}denied{% endif %}">{{ req.approved|yesno:"Approved,Denied" }}</span>
@@ -94,9 +100,9 @@
     <span style="margin-right: 1rem; font-style: italic;">{{ req.requested_at }}</span>
     <span class="badge badge-secondary" style="margin-right: 1rem;">{% if req.patient == user %}incoming{% else %}outgoing{% endif %}</span>
     {% if req.patient == user %}
-    <h3 style="margin: 0;">{{ req.requested_by.last_name }}, {{ req.requested_by.first_name }}</h3>
+    <h3 style="margin: 0;">{{ req.requested_by.tag_line }}</h3>
     {% else %}
-    <h3 style="margin: 0;">{{ req.patient.last_name }}, {{ req.patient.first_name }}</h3>
+    <h3 style="margin: 0;">{{ req.patient.tag_line }}</h3>
     {% endif %}
     <span style="flex-grow: 1; margin: 0 2rem; text-align: start;">{{ req.period_start }} - {{ req.period_end }}</span>
     <span class="badge badge-{% if req.approved %}approved{% elif req.denied %}denied{% endif %}">{{ req.approved|yesno:"Approved,Denied" }}</span>

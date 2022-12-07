@@ -1,7 +1,8 @@
+import datetime
 import uuid
-from django.test import TestCase, SimpleTestCase, TransactionTestCase
+from django.test import TestCase, SimpleTestCase, TransactionTestCase, LiveServerTestCase
 
-from pdm.models import User
+from pdm.models import AccessRequest, User
 
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -96,3 +97,49 @@ class LoginTestCase(TransactionTestCase):
             self.assertEqual(response.status_code, 200)
             user = User.objects.get(email=user.email)
             self.assertFalse(user.verified)
+
+
+class StressTestTokenGenerator(TestCase):
+    def test_token_generator_with_verification_endpoint(self):
+        """Test token generator with verification endpoint"""
+        for _ in range(100):
+            user = User.objects.create_user(
+                email=uuid.uuid4().hex + '@test.domain', password=uuid.uuid4().hex)
+            token = default_token_generator.make_token(user)
+            user_id_b64 = urlsafe_base64_encode(force_bytes(user.pk))
+            response = self.client.get(
+                f"/accounts/verify/{user_id_b64}/{token}")
+            self.assertEqual(response.status_code, 200)
+            user = User.objects.get(email=user.email)
+            self.assertTrue(user.verified)
+            user.delete()
+
+
+class AccessRequestTestCase(TestCase):
+    def setUp(self):
+        self.user_a = {
+            'email': uuid.uuid4().hex + '@test.domain',
+            'password': uuid.uuid4().hex
+        }
+        self.user_b = {
+            'email': uuid.uuid4().hex + '@test.domain',
+            'password': uuid.uuid4().hex
+        }
+        self.user_a = User.objects.create_user(
+            self.user_a['email'], self.user_a['password'])
+        self.user_b = User.objects.create_user(
+            self.user_b['email'], self.user_b['password'])
+
+    def test_access_request_creation(self):
+        """Test access request creation"""
+        self.client.login(email=self.user_a.email,
+                          password=self.user_a.password)
+        request = AccessRequest.objects.create(
+            patient=self.user_b, requested_by=self.user_a, period_start=datetime.date.today(), period_end=datetime.date.today())
+        self.assertEqual(request.patient, self.user_b)
+        self.assertEqual(request.requested_by, self.user_a)
+        self.assertFalse(request.approved)
+        self.assertFalse(request.denied)
+        request.delete()
+        self.user_a.delete()
+        self.user_b.delete()

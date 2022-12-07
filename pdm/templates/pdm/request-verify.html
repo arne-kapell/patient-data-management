@@ -80,7 +80,7 @@
 {% if requests_for_approval|length > 0 %}
 {% for req in requests_for_approval %}
 <div class="card request-row">
-    <span style="margin-right: 2rem; font-style: italic;">{{ req.target_user.first_name }}, {{ req.target_user.last_name }} ({{ req.target_user.email }})</span>
+    <span style="margin-right: 2rem; font-style: italic;">{{ req.target_user.first_name }}, {{ req.target_user.last_name }} ({{ req.target_user.email }}) <i>aka</i> {{ req.target_user.tag_line }}</span>
     <span style="margin-right: 2rem; font-style: italic;">{{ req.requested_at }}</span>
     <h3 style="flex-grow: 1; margin: 0; text-align: start;">{{ req.medical_role }} {% if req.title %}({{ req.title }}){% endif %}</h3>
     <a href="{{ req.check_url }}" target="_blank" style="margin-left: 2rem;"><button>Check in Register</button></a>
@@ -95,11 +95,11 @@
 {% if requests_processed|length > 0 %}
 {% for req in requests_processed %}
 <div class="card request-row">
-    <span style="margin-right: 2rem; font-style: italic;">{{ req.target_user.last_name }}, {{ req.target_user.first_name }} ({{ req.target_user.email }})</span>
+    <span style="margin-right: 2rem; font-style: italic;">{{ req.target_user.last_name }}, {{ req.target_user.first_name }} ({{ req.target_user.email }}) <i>aka</i> {{ req.target_user.tag_line }}</span>
     <span style="margin-right: 2rem; font-style: italic;">{{ req.requested_at }}</span>
     <h3 style="flex-grow: 1; margin: 0; text-align: start;">{{ req.medical_role }} {% if req.title %}({{ req.title }}){% endif %}</h3>
     <span style="margin-left: 1rem;" class="badge badge-{% if req.approved %}approved{% elif req.denied %}denied{% endif %}">{{ req.approved|yesno:"Approved,Denied" }}</span>
-    <span style="margin-left: 1rem;">{{ req.processed_at }} <i>by</i> {{ req.target_user.first_name }}, {{ req.target_user.last_name }} ({{ req.processed_by.email }})</span>
+    <span style="margin-left: 1rem;">{{ req.processed_at }} <i>by</i> {{ req.target_user.tag_line }}</span>
     {% if req.approved %}<a href="/verify/{{ req.uid }}/revoke" style="margin-left: 10px;"><button class="warning">Revoke</button></a>{% endif %}
 </div>
 {% endfor %}
