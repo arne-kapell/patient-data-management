@@ -45,12 +45,6 @@
     </div>
     <input type="submit" value="Update">
 </form>
-{% comment %} <form action="{% url 'upload' %}" method="post" enctype="multipart/form-data" id="upload-form">
-    {% csrf_token %}
-    <input type="file" accept="{{ allowed }}" name="file" style="margin-bottom: 10px;" />
-    <input type="submit" value="Upload" style="margin-bottom: 10px;" /><br />
-    <span style="max-width: 50%;"><input type="checkbox" name="is_sensitive" value="0">This document is sensitive and is not to be shared with anyone that I have not explicitly given permission to view it.</input></span>
-</form> {% endcomment %}
 {% endblock %}
 {% block js %}
 const label = document.getElementById('file-input').querySelector('label');

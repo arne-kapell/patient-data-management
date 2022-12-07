@@ -181,8 +181,6 @@ def logoutUser(request):
 def sendVerificationEmail(user: User, base_url: str, callback: str = "accounts/verify"):
     if user.verified:
         return 1
-    # token = default_token_generator.make_token(user)
-    # assert default_token_generator.check_token(user, token)
     token = default_token_generator.make_token(user)
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     link = base_url + callback + f"/{uid}/{token}"
@@ -201,7 +199,6 @@ def editProfile(request):
 
     if request.method == 'POST':
         form = UserInfoEditForm(request.POST, instance=request.user)
-        # print(form.changed_data, form.is_valid())
         if form.is_valid():
             user = form.save(commit=False)
             if 'email' in form.changed_data:
@@ -226,7 +223,7 @@ def changePassword(request):
     form = PasswordChangeForm(request.user)
     if request.method == 'POST':
         form = PasswordChangeForm(user=request.user, data=request.POST)
-        if form.is_valid():    # form.clean_old_password() and form.clean_new_password2():
+        if form.is_valid():
             user = form.save()
             update_session_auth_hash(request, user)
             return redirect('profile')
@@ -452,6 +449,6 @@ def approveOrDenyVerify(request, req_id, action="deny"):  # TODO: add reason for
     return redirect('request-verify')
 
 
-def get_available_tag_lines(user: User): # unfiltered
+def get_available_tag_lines(user: User):
     return User.objects.values_list('tag_line', flat=True).distinct().exclude(tag_line=user.tag_line).exclude(Q(tag_line=None) | Q(tag_line=""))
     

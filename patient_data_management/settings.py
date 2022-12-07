@@ -10,9 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
-from base64 import b64decode, b64encode
+from base64 import b64decode
 import os
 from pathlib import Path
+import sys
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -34,7 +35,6 @@ CSRF_TRUSTED_ORIGINS = ['http://localhost', 'http://127.0.0.1',
                         'http://0.0.0.0', 'https://cloud.arne-kapell.de']
 # CSRF_COOKIE_SECURE = not bool(int(os.getenv("DEBUG", default=0)))
 
-# Application definition
 
 INSTALLED_APPS = [
     "pdm.apps.PdmConfig",
@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    # 'whitenoise.runserver_nostatic',
     "django.contrib.staticfiles",
     "encrypted_files"
 ]
@@ -78,12 +77,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "patient_data_management.wsgi.application"
-# WHITENOISE_USE_FINDERS = True
-# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-
-# Database
-# https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
     "default": {
@@ -93,8 +87,10 @@ DATABASES = {
         'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'postgres'),
         'HOST': os.environ.get('POSTGRES_HOST', 'db'),
         'PORT': os.environ.get('POSTGRES_PORT', 5432),
-    }
+    },
 }
+if "test" in sys.argv or "test_coverage" in sys.argv:
+    DATABASES["default"] = {"ENGINE": "django.db.backends.sqlite3"}
 
 
 # Password validation
@@ -120,7 +116,7 @@ AUTH_USER_MODEL = "pdm.User"
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
-LANGUAGE_CODE = "de-de"
+LANGUAGE_CODE = os.getenv("LANGUAGE_CODE", default="en-us")
 
 TIME_ZONE = "Europe/Berlin"
 
@@ -135,11 +131,9 @@ URL_PREFIX = os.getenv("URL_PREFIX", default="")
 
 STATIC_URL = URL_PREFIX + "static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
-# STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 
 LOGIN_URL = URL_PREFIX + "/accounts/login/"
 LOGIN_REDIRECT_URL = LOGOUT_REDIRECT_URL = 'index'
-# LOGOUT_REDIRECT_URL = URL_PREFIX + 'index'
 
 SESSION_COOKIE_AGE = 30 * 60  # in seconds (30 minutes)
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
@@ -172,7 +166,7 @@ FILE_UPLOAD_HANDLERS = [
 ]
 
 AES_KEY = b64decode(os.environ.get(
-    "DOCUMENT_ENCRYPTION_KEY", default=b64encode(os.urandom(32)).decode("utf-8")))
+    "DOCUMENT_ENCRYPTION_KEY", default="elRm7Dkq755tSR9t3jQ6U4kqHPsvB8CndGK7laroqQA="))  # 32 bytes, base64 encoded
 
 MAX_PAST_DAYS_FOR_ACCESS_REQUEST = 30 * 6  # 6 months
 MAX_FUTURE_DAYS_FOR_ACCESS_REQUEST = 30 * 6  # 6 months
@@ -217,17 +211,15 @@ STATE_DOCTOR_INDEX_MAPPING = {
 }
 
 VERIFY_REQUEST_COOLDOWN = 60 * 60 * 24  # 24 hours
+PASSWORD_RESET_TIMEOUT = 60 * 60 * 24  # 24 hours
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' if DEBUG else 'django.core.mail.backends.smtp.EmailBackend'
 
-PASSWORD_RESET_TIMEOUT = 60 * 60 * 24  # 24 hours
-if not DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    MAILER_EMAIL_BACKEND = EMAIL_BACKEND
-    EMAIL_HOST = os.environ.get("EMAIL_HOST", default="smtp.strato.de")
-    EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", default="")
-    EMAIL_HOST_USER = os.environ.get(
-        "EMAIL_HOST_USER", default="no-reply@cloud.arne-kapell.de")
-    EMAIL_PORT = 465
-    EMAIL_USE_SSL = True
-    DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+MAILER_EMAIL_BACKEND = EMAIL_BACKEND
+EMAIL_HOST = os.environ.get("EMAIL_HOST", default="smtp.strato.de")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", default="")
+EMAIL_HOST_USER = os.environ.get(
+    "EMAIL_HOST_USER", default="no-reply@cloud.arne-kapell.de")
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

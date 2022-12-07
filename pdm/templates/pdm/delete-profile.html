@@ -36,9 +36,6 @@
 {% csrf_token %}
 <div>
     {{ form.password.label_tag }} {{ form.password }}
-    {% comment %} {% for error in form.password.errors %}
-        <p class="error">{{ error|escape }}</p>
-    {% endfor %} {% endcomment %}
 </div>
 
 <div style="justify-content: center">

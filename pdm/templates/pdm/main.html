@@ -14,9 +14,9 @@
               }
             html {
                 font-family: Helvetica, Arial, sans-serif;
+                overflow-x: clip;
             }
             body {
-                {% comment %} min-height: 100vh; {% endcomment %}
                 margin-bottom: 0;
             }
             main {
@@ -33,7 +33,6 @@
                 border: 1px solid transparent;
                 border-radius: 5px;
                 padding: 10px;
-                {% comment %} font-size: 1.2rem; {% endcomment %}
                 transition: all 0.2s;
             }
             button:hover, input[type="submit"]:hover {
@@ -101,10 +100,6 @@
                 transform: scale(1.1);
             }
             .nav li.active {
-                {% comment %} text-decoration: overline;
-                text-decoration-color: var(--secondary);
-                text-decoration-thickness: 2px; {% endcomment %}
-                {% comment %} transform: scale(1.1); {% endcomment %}
                 text-shadow: 0 0 25px #000;
             }
             .nav li a {
@@ -117,7 +112,6 @@
                 background-color: rgba(255, 0, 0, 0.1);
             }
             .success {
-                {% comment %} color: green; {% endcomment %}
                 background-color: rgba(0, 255, 0, 0.1);
             }
             #footer {
@@ -174,7 +168,6 @@
             <h3 id="title">{% block title %}{% endblock %}</h3>
         </div>
         <div class="card nav-container">
-            {% comment %} render navigation {% endcomment %}
             <ul class="nav">
                 <li {% if request.path == '/' %}class="active"{% endif %}><a href="{% url 'index' %}">Dashboard</a></li>
                 {% if user.role < 3 or not user.is_authenticated %}
@@ -188,7 +181,6 @@
                     {% if user.is_superuser %}
                     <span style="margin-right: 10px; color: red;">ADMIN</span>
                     {% elif user.last_name and user.first_name %}
-                    <!--<span style="margin-right: 10px;">{{ user.last_name }}, {{ user.first_name }}</span>-->
                     <a href="/profile/"><button>{{ user.last_name }}, {{ user.first_name }}</button></a>
                     {% endif %}
                     {% if user.is_staff %}
