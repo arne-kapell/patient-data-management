@@ -33,6 +33,10 @@ services:
       sh -c "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn patient_data_management.wsgi:application --bind 0.0.0.0:8000"
     ports:
       - 8000:8000
+    secrets:
+      - django_secret_key
+      - document_encryption_key
+      - mail_password
     environment:
       - POSTGRES_HOST=db
       - POSTGRES_NAME=postgres
