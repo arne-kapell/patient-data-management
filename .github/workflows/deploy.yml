@@ -63,6 +63,4 @@ jobs:
         KEY: ${{ env.SSHKEY }}
         script: |
           cd ${{ env.TARGET_PATH }}
-          # docker compose -f ${{ env.COMPOSE_FILE }} up -d --build db > ACTION_DEPLOY.log
-          docker compose -f ${{ env.COMPOSE_FILE }} up -d --build >> ACTION_DEPLOY.log
-          # docker compose -f ${{ env.COMPOSE_FILE }} up -d --build db_backups >> ACTION_DEPLOY.log
+          docker compose -f ${{ env.COMPOSE_FILE }} up -d --build --force-recreate --quiet-pull --remove-orphans > ACTION_DEPLOY.log
