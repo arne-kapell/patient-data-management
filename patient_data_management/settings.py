@@ -41,9 +41,10 @@ SECRET_KEY = get_secret(
 # use env if available
 DEBUG = bool(int(os.getenv("DEBUG", default=0)))
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', 'cloud.arne-kapell.de']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0',
+                 'cloud.arne-kapell.de', 'pdm.big-sala.me']
 CSRF_TRUSTED_ORIGINS = ['http://localhost', 'http://127.0.0.1',
-                        'http://0.0.0.0', 'https://cloud.arne-kapell.de']
+                        'http://0.0.0.0', 'https://cloud.arne-kapell.de', 'https://pdm.big-sala.me']
 # CSRF_COOKIE_SECURE = not bool(int(os.getenv("DEBUG", default=0)))
 
 
