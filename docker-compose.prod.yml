@@ -59,14 +59,11 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.pdm.entrypoints=https"
-      - "traefik.http.routers.pdm.rule=Host(`cloud.arne-kapell.de`)"
+      - "traefik.http.routers.pdm.rule=Host(`pdm.big-sala.me`, `cloud.arne-kapell.de`)"
       - "traefik.http.routers.pdm.tls=true"
       - "traefik.http.routers.pdm.tls.certresolver=http"
       - "traefik.http.services.pdm-svc.loadbalancer.server.port=8000"
       - "traefik.docker.network=web"
-      # - "traefik.http.routers.pdm.rule=Host(`cloud.arne-kapell.de`) && PathPrefix(`/pdm`)"
-      # - "traefik.http.routers.pdm.middlewares=pdm-removeprefix"
-      # - "traefik.http.middlewares.pdm-removeprefix.stripprefix.prefixes=/pdm"
   db_backups:
     image: prodrigestivill/postgres-backup-local
     restart: always
