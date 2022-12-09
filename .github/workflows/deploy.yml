@@ -1,5 +1,5 @@
 name: Run tests and deploy to VPS
- 
+
 on: [push, pull_request, workflow_dispatch]
 
 env:
@@ -9,8 +9,19 @@ env:
   KEY: ${{ secrets.SSHKEY }}
   TARGET_PATH: "/repos/pdm/"
   COMPOSE_FILE: "docker-compose.prod.yml"
- 
+
 jobs:
+  sonarqube:
+    name: SonarQube Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
   django-test-and-checks:
     runs-on: ubuntu-latest
     steps:
@@ -32,27 +43,27 @@ jobs:
       name: vps
       url: "https://${{ env.HOST }}/"
     steps:
-    - uses: actions/checkout@v1
-    - name: Copy repository contents via scp
-      uses: appleboy/scp-action@master
-      env:
-        HOST: ${{ env.HOST }}
-        USERNAME: ${{ env.USERNAME }}
-        PORT: ${{ env.PORT }}
-        KEY: ${{ env.KEY }}
-      with:
-        source: "./*"
-        target: ${{ env.TARGET_PATH }}
-        overwrite: true
-        rm: true
- 
-    - name: Executing remote command
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ env.HOST }}
-        USERNAME: ${{ env.USERNAME }}
-        PORT: ${{ env.PORT }}
-        KEY: ${{ env.SSHKEY }}
-        script: |
-          cd ${{ env.TARGET_PATH }}
-          docker compose -f ${{ env.COMPOSE_FILE }} up -d --build --force-recreate --quiet-pull --remove-orphans > ACTION_DEPLOY.log
+      - uses: actions/checkout@v1
+      - name: Copy repository contents via scp
+        uses: appleboy/scp-action@master
+        env:
+          HOST: ${{ env.HOST }}
+          USERNAME: ${{ env.USERNAME }}
+          PORT: ${{ env.PORT }}
+          KEY: ${{ env.KEY }}
+        with:
+          source: "./*"
+          target: ${{ env.TARGET_PATH }}
+          overwrite: true
+          rm: true
+
+      - name: Executing remote command
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ env.HOST }}
+          USERNAME: ${{ env.USERNAME }}
+          PORT: ${{ env.PORT }}
+          KEY: ${{ env.SSHKEY }}
+          script: |
+            cd ${{ env.TARGET_PATH }}
+            docker compose -f ${{ env.COMPOSE_FILE }} up -d --build --force-recreate --quiet-pull --remove-orphans > ACTION_DEPLOY.log
