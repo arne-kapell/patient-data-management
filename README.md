@@ -41,6 +41,7 @@ Zusätzlich wird eine lokale traefik-Instanz (als reverse proxy) benötigt, die 
 ---
 0. [Anforderungen bzw. Aufgabenstellung](slides/Laborarbeit2022AufgabeSichereSysteme.pdf)
 1. [Sicherheitsanforderungen & Bedrohungsanalyse](slides/abgabe01.html)
+2. [Abschlusspräsentation](slides/abschlusspraesi.html)
 
 
 ## Testplan
@@ -57,3 +58,49 @@ Zusätzlich wird eine lokale traefik-Instanz (als reverse proxy) benötigt, die 
 | T8     | Unit-Test  /DDOS          | Ausfall der Datenbank auslösen                                                                                                                             | Durch erhöhte Anzahl an Anfragen Verbindung zur Datenbank kompromittieren                                                      | ---                                                          | ---    |
 | T9     | Unit-Test                 | Zugriff auf Administrator Oberfläche ohne Account mit benötigten Berechtigungen                                                                            | Versuchen an Informationen zu gelangen, die nur für Administratoren gedacht sind                                               | Fehlermeldung wegen fehlenden Berechtigungen für den Zugriff | ---    |
 | T10    | Unit-Test                 | Schadecode via Upload Einschleusen                                                                                                                         | Infizierte Datei unter Dokumenten hochladen                                                                                    | Filtern der Datei durch Clam AV                              | --- |
+
+## Sicherheits-Features
+---
+- [x] Login-System
+  - [x] Session-Timeout (`30` Minuten und beim Schließen des Browsers)
+  - [x] Passwort-Hashing (`PBKDF2`)
+- [x] Dokument-Verschlüsselung beim Upload (`AES` mit `32` Byte langem Schlüssel)
+  - [ ] Zusammengesetzte Schlüssel (50% Server-Schlüssel, 50% Benutzer-Schlüssel): Nicht implementiert, da kein ersichtlicher Mehrwert (ohne zusätzliche Anpassungen)
+- [ ] Viren-Scan beim Upload (`ClamAV`): Standard-Bibliotheken veraltet, daher nicht implementiert
+- [x] Regelmäßige Backups der Datenbank (`PostgreSQL`): 2x täglich (Retention-Werte siehe [docker-compose.prod.yml](docker-compose.prod.yml) `services.db_backup`)
+- [x] CSRF- (und XSS-)Schutz durch Django-Standard (`{% csrf_token %}`): [Dokumentation](https://docs.djangoproject.com/en/4.1/ref/csrf/)
+- [x] Beschränkung der Dokumenten-Dateitypen (PDF, Text-Dokumente und Bilder) und Dateigröße (max. `10` MB; siehe Whitelist unter `ACCEPTED_DOCUMENT_EXTENSIONS` bzw. `MAX_UPLOAD_SIZE` in [settings.py](patient_data_management/settings))
+
+## Rollen- und Rechte-Management
+---
+| Rolle         | Patient | Arzt | Verifikator | (Administrator) |
+| ------------- | :-----: | :--: | :---------: | :-----------: |
+| Eigene Dokumente verwalten (CRUD) | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |  |
+| Zugriff auf fremde Dokumente anfragen |  | :heavy_check_mark: | :heavy_check_mark: |  |
+| Freigegebene Dokumente einsehen und herunterladen | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |  |
+| Freigegebene Dokumente aktualisieren | :x: | :heavy_check_mark: | :heavy_check_mark: |  |
+| Freigegebene Dokumente löschen | :x: | :x: | :x: |  |
+| Freischaltung als Arzt beantragen | :heavy_check_mark: | :x: | :x: |  |
+| Arztstatus bestätigen | :x: | :x: | :heavy_check_mark: |  |
+| Benutzer zum Verifikator ernennen | :x: | :x: | :x: | :heavy_check_mark: |
+| Benutzer verwalten (CRUD) | :x: | :x: | :x: | :heavy_check_mark: |
+
+### Privilege-Flow
+```mermaid
+graph LR
+    subgraph Patienten
+        P1[Patient]
+        P2[Patient]
+    end
+    A[Arzt]
+    subgraph Verwaltung
+        V[Verifikator]
+        AD[Administrator]
+    end
+    P1 -->|stellt Bestätigungs-Anfrage an| V
+    V -->|lehnt Bestätigungs-Anfrage ab| P1
+    V -->|prüft und befördert Patient zum| A
+    AD -->|kann ernennen| V
+    P1 & A -->|stellt Zugriffs-Anfrage| P2
+    P2 -->|bestätigt Zugriff / lehnt Zugriff ab| P1 & A
+```
