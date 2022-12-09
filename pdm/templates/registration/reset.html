@@ -1,0 +1,39 @@
+{% extends "pdm/main.html" %}
+
+{% block title %}Reset password{% endblock %}
+
+{% block style %}
+#reset-form {
+    display: flex;
+    flex-direction: row;
+    vertical-align: middle;
+    min-width:20%;
+    width: max-content;
+    margin: auto;
+}
+#reset-form * {
+    margin: 0.5em;
+}
+{% endblock %}
+
+{% block content %}
+{% if form.errors %}
+<div class="card alert error" role="alert">
+    {% for field in form %}
+        {% for error in field.errors %}
+            {{ error }}
+        {% endfor %}
+    {% endfor %}
+</div>
+{% endif %}
+
+<h2>Reset password</h2>
+<form id="reset-form" method="post" action="{% url 'reset_password' %}">
+{% csrf_token %}
+{{ form.email.label_tag }} {{ form.email }}
+<input type="submit" value="Reset">
+</form>
+
+<p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+
+{% endblock %}

@@ -1,6 +1,6 @@
 import datetime
 from django.utils.timezone import make_aware
-from pdm.forms import LoginForm, RegistrationForm, UserInfoEditForm, PasswordChangeForm, DeleteAccountForm, DocumentUpdateForm, DocumentUploadForm
+from pdm.forms import LoginForm, RegistrationForm, UserInfoEditForm, PasswordChangeForm, DeleteAccountForm, DocumentUpdateForm, DocumentUploadForm, PasswordResetForm, SetPasswordForm
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import update_session_auth_hash
@@ -18,7 +18,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.core.mail import EmailMessage
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes
+from django.utils.encoding import force_bytes, force_str
 
 from django.utils.translation import gettext_lazy as _
 
@@ -238,6 +238,40 @@ def changePassword(request):
         form = PasswordChangeForm(request.user)
     return render(request, 'pdm/change-password.html', {"form": form})
 
+@csrf_protect
+def resetPassword(request):
+    form = PasswordResetForm()
+    if request.method == 'POST':
+        form = PasswordResetForm(request.POST)
+        if form.is_valid():
+            user = User.objects.filter(email=form.cleaned_data.get('email')).first()
+            if user:
+                form.save(
+                    from_email=settings.EMAIL_HOST_USER,
+                    use_https=settings.EMAIL_USE_SSL,
+                    domain_override=request.get_host(),
+                )
+        return render(request, 'pdm/basic-out.html', {"title": "Reset Password", "heading": "Reset Password", "messages": ["If an account with the given email exists, a password reset link has been sent to the email address"]})
+    return render(request, 'registration/reset.html', {"form": form})
+
+@csrf_protect
+def resetPasswordConfirm(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+    if user is not None and default_token_generator.check_token(user, token):
+        form = SetPasswordForm(user)
+        if request.method == 'POST':
+            form = SetPasswordForm(user, request.POST)
+            if form.is_valid():
+                form.save()
+                return render(request, 'pdm/basic-out.html', {"title": "Reset Password", "heading": "Reset Password", "messages": ["Password reset successful"]})
+        return render(request, 'registration/reset-confirm.html', {"form": form})
+    else:
+        return render(request, 'pdm/basic-out.html', {"title": "Reset Password", "heading": "Reset Password", "messages": ["The password reset link is invalid"]})
+                    
 
 @login_required
 def deleteProfile(request):
