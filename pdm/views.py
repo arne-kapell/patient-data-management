@@ -45,8 +45,12 @@ def getAccessibleDocuments(user: User) -> list:
                 req.period_start, datetime.time.min))
             end = make_aware(datetime.datetime.combine(
                 req.period_end, datetime.time.max))
-            docs = docs | Document.objects.filter(Q(owner=req.patient) & Q(
-                uploaded_at__gte=start) & Q(uploaded_at__lte=end))
+            if user.role == User.DOCTOR:
+                docs = docs | Document.objects.filter(Q(owner=req.patient) & Q(
+                    uploaded_at__gte=start) & Q(uploaded_at__lte=end))
+            else:
+                docs = docs | Document.objects.filter(Q(owner=req.patient) & Q(
+                    uploaded_at__gte=start) & Q(uploaded_at__lte=end) & Q(sensitive=False))
         return docs
     else:
         return []
