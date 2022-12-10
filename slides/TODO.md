@@ -1,36 +1,11 @@
-## Testing
-
-* [x] Eingabe-Validierung **--Arne**
-* [ ] Test-Stategie ("Testplan") **--Irina**
-* [x] Tooling (für Django) **--Arne**
-* [x] Deployment **--Arne**
-
-## App-Improvements **--Finn**
-
-* [x] Teilen mit Patienten
-* [x] Dokumente "bearbeiten" (update)
-* [x] Benutzer-Profile mit pers. Daten (Geburtstag, Geschlecht, etc.)
-* [x] Account-Verwaltung (Passwort-Reset, Löschen, Mail-Verifizierung, etc.)
-* [-] (*CASCADING* für *AccessRequests* prüfen)
-
-## Security-Features
-
-* [x] Prüfen von zusammengesetzen Encryption-Keys (für *Documents*)
-
-    **In Doku**: Im Projektumfang nicht verhältnismäßig, allerdings im Produktivbetrieb notwendig da medizinische Daten
-
-* [x] DB-Backups (automatisiert, verschlüsselt) **--Irina**
-* [-] Upload-Scanning (Viren, etc.) **--Irina**
-
-    <https://github.com/QueraTeam/django-clamav>
-
-# Doku
-
-## Sicherheit
-
-* Session-Länge
-* Passwort-Hashing
-* DB-Backups
-* Upload-Scanning
-* Dokument-Verschlüsselung
-* ...
+- [ ] Tests implementieren und Ergebnissse dokumentieren (Testplan)
+- [ ] Implementierte Tests dokumentieren
+- [x] GitLeaks dokumentieren
+- [x] Docker Volumes dokumentieren
+- [x] SSL-Verbindungen veranschaulichen (struktur)
+- [ ] PRÄSENTATION
+  - [ ] Top10-Abdeckung
+  - [ ] Modulstruktur
+  - [-] Werkzeuge
+  - [ ] Demo (Vorbereitungen: Demo-user, etc.)
+  - [ ] Security-Features

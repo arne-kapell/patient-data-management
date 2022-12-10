@@ -48,6 +48,7 @@ Projekt: Security by Design (Semester 5)
 ---
 <!-- _class: lead -->
 # Risiko-Register
+<!-- TODO -->
 
 ---
 # Risiko-Register (1/4)
@@ -74,9 +75,19 @@ Projekt: Security by Design (Semester 5)
 # Modulstruktur
 
 ---
+TODO
+
+---
 <!-- _class: lead -->
 # Werkzeuge
 Entwicklungs-Tools
+
+---
+# Entwicklungs-Tools
+- Git(Hub)
+- Visual Studio Code
+- Docker/Podman (+ Compose)
+- Anaconda (Python Virtual Environment)
 
 ---
 <!-- _class: lead -->
@@ -84,13 +95,43 @@ Entwicklungs-Tools
 Pipeline für Build, Test und Deployment
 
 ---
+# Pipelines
+- laufen auf GitHub Actions
+- werden bei jedem Push aufgerufen
+
+---
+# Build
+- Builden der eigenen Docker-Images (Django) auf dem Ziel-System
+- verwenden von bereits vorhandenen Images (z.B. PostgreSQL) soweit möglich
+- Nutzung von Caching für einzelne Build-Schritte durch Docker(-Compose)
+---
+# Tests und Checks
+- Django-Tests in der Deployment-Pipeline
+- CodeQL-Checks für statische Code-Analyse
+- SonarQube-Checks für qualitative Code-Review
+- GitLeaks als Secret-Scanner
+---
+
+# Deployment
+0. Tests als Quality-Gate
+1. Pushen des Source-Codes zum VPS Ziel-System
+2. Deployment des Stacks mit Docker-Compose
+3. Reverse-Proxy für HTTPS-Verbindungen (traefik)
+
+---
+<!-- _class: lead -->
+# Demo
+Projekt und Source-Code (Repository)
+---
+---
 <!-- _class: lead -->
 # Tests
 Testplan und Ergebnisse
 
 ---
-<!-- _class: lead -->
-# Demo
+# Secure by Design
+- Top 10 OWASP
+- ...
 
 ---
 <!-- 
