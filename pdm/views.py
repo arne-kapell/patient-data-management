@@ -26,6 +26,7 @@ from pdm.tools import getPageNumberFromEncryptedFile
 
 from django.urls import Resolver404, get_resolver
 
+import uuid
 
 @login_required
 def index(request):
@@ -92,9 +93,13 @@ def upload(request):
 
 @login_required
 def preview(request, doc_id):
+    try:
+        uuid.UUID(doc_id)
+    except ValueError:
+        return render(request, 'pdm/error.html', {"error": {"type": "Bad Request", "message": "Invalid document ID", "code": 400}}, status=400)
     doc = Document.objects.get(pk=doc_id)
     if doc.owner != request.user and doc not in getAccessibleDocuments(request.user):
-        return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "message": "You do not have permission to view this document"}})
+        return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "message": "You do not have permission to view this document", "code": 403}}, status=403)
 
     if doc.file.name.split('.')[-1].lower() in settings.NO_PREVIEW_DOCUMENT_EXTENSIONS:
         return redirect('download', doc_id=doc_id)
@@ -116,7 +121,7 @@ def preview(request, doc_id):
 def download(request, doc_id):
     doc = Document.objects.get(pk=doc_id)
     if request.user != doc.owner and doc not in getAccessibleDocuments(request.user):
-        return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are not the owner of this document"}})
+        return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are not the owner of this document"}}, status=403)
     return StreamingHttpResponse(EncryptedFile(doc.file), content_type='application/octet-stream', headers={'Content-Disposition': 'attachment; filename=' + doc.owner.last_name + '_' + doc_id.split('-')[0] + '.' + doc.file.name.split('.')[-1]})
 
 
@@ -124,9 +129,9 @@ def download(request, doc_id):
 def deleteDoc(request, doc_id):
     doc = Document.objects.get(pk=doc_id)
     if not doc:
-        return render(request, 'pdm/error.html', {"error": {"type": "Not Found", "code": 404, "message": "Document not found"}})
+        return render(request, 'pdm/error.html', {"error": {"type": "Not Found", "code": 404, "message": "Document not found"}}, status=404)
     if request.user != doc.owner:
-        return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are not the owner of this document"}})
+        return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are not the owner of this document"}}, status=403)
     doc.delete()
     request.session['status'] = "Successfully deleted document"
     return redirect('docs')
@@ -136,7 +141,7 @@ def deleteDoc(request, doc_id):
 def updateDoc(request, doc_id):
     doc = Document.objects.get(pk=doc_id)
     if not doc:
-        return render(request, 'pdm/error.html', {"error": {"type": "Not Found", "code": 404, "message": "Document not found"}})
+        return render(request, 'pdm/error.html', {"error": {"type": "Not Found", "code": 404, "message": "Document not found"}}, status=404)
     form = DocumentUpdateForm(instance=doc)
     if request.method == 'POST':
         prev_ext = doc.file.name.split('.')[-1]
@@ -354,14 +359,14 @@ def requestAccess(request):
         period_end = request.POST['end-date']
         patient = User.objects.filter(tag_line=patient_tag).first()
         if not patient:
-            return render(request, 'pdm/error.html', {"error": {"type": "Bad Request", "code": 400, "message": "Patient not found"}})
+            return render(request, 'pdm/error.html', {"error": {"type": "Bad Request", "code": 400, "message": "Patient not found"}}, status=400)
         if patient.email == request.user.email:
-            return render(request, 'pdm/error.html', {"error": {"type": "Bad Request", "code": 400, "message": "You cannot request access to your own documents"}})
+            return render(request, 'pdm/error.html', {"error": {"type": "Bad Request", "code": 400, "message": "You cannot request access to your own documents"}}, status=400)
         period_start = datetime.datetime.strptime(
             period_start, '%Y-%m-%d').date()
         period_end = datetime.datetime.strptime(period_end, '%Y-%m-%d').date()
         if period_start > today or period_start < min_date or period_end > max_date or period_end < today:
-            return render(request, 'pdm/error.html', {"error": {"type": "Bad Request", "code": 400, "message": "Invalid date range"}})
+            return render(request, 'pdm/error.html', {"error": {"type": "Bad Request", "code": 400, "message": "Invalid date range"}}, status=400)
         access_request = AccessRequest.objects.create(
             patient=patient, requested_by=request.user, period_start=period_start, period_end=period_end)
         access_request.save()
@@ -370,7 +375,7 @@ def requestAccess(request):
         for candidate in existing_candidates:
             if candidate.period_start <= period_start and candidate.period_end >= period_end:
                 access_request.delete()
-                return render(request, 'pdm/error.html', {"error": {"type": "Bad Request", "code": 400, "message": "You already have requested access to this patient's documents for this period"}})
+                return render(request, 'pdm/error.html', {"error": {"type": "Bad Request", "code": 400, "message": "You already have requested access to this patient's documents for this period"}}, status=400)
         context['success'] = "Request sent"
     context['today'] = str(today)
     context['min_date'] = str(min_date)
@@ -391,15 +396,15 @@ def approveOrDeny(request, req_id, action="deny"):
     actions = ("approve", "deny")
     access_request = AccessRequest.objects.filter(pk=req_id).first()
     if not access_request:
-        return render(request, 'pdm/error.html', {"error": {"type": "Not Found", "code": 404, "message": "Request not found"}})
+        return render(request, 'pdm/error.html', {"error": {"type": "Not Found", "code": 404, "message": "Request not found"}}, status=404)
     if request.user.role == User.DOCTOR and access_request.requested_by != request.user:
-        return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are not the requestor in this request"}})
+        return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are not the requestor in this request"}}, status=403)
     if request.user.role == User.PATIENT and access_request.patient != request.user:
-        return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are not the patient in this request"}})
+        return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are not the patient in this request"}}, status=403)
     if action not in actions:
-        return render(request, 'pdm/error.html', {"error": {"type": "Bad Request", "code": 400, "message": "Invalid action"}})
+        return render(request, 'pdm/error.html', {"error": {"type": "Bad Request", "code": 400, "message": "Invalid action"}}, status=400)
     if access_request.approved or access_request.denied:
-        return render(request, 'pdm/error.html', {"error": {"type": "Bad Request", "code": 400, "message": "Request already processed"}})
+        return render(request, 'pdm/error.html', {"error": {"type": "Bad Request", "code": 400, "message": "Request already processed"}}, status=400)
     if action == "approve":
         access_request.approved = True
         access_request.approved_or_denied_at = datetime.datetime.now()
@@ -415,9 +420,9 @@ def approveOrDeny(request, req_id, action="deny"):
 def deleteRequest(request, req_id):
     access_request = AccessRequest.objects.filter(pk=req_id).first()
     if not access_request:
-        return render(request, 'pdm/error.html', {"error": {"type": "Not Found", "code": 404, "message": "Request not found"}})
+        return render(request, 'pdm/error.html', {"error": {"type": "Not Found", "code": 404, "message": "Request not found"}}, status=404)
     if request.user.role == User.DOCTOR and access_request.requested_by != request.user:
-        return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are not the requestor in this request"}})
+        return render(request, 'pdm/error.html', {"error": {"type": "Permission Denied", "code": 403, "message": "You are not the requestor in this request"}}, status=403)
     access_request.delete()
     return redirect('request-access')
 
@@ -468,11 +473,11 @@ def approveOrDenyVerify(request, req_id, action="deny"):  # TODO: add reason for
     actions = ("approve", "deny", "revoke")
     v_request = VerificationRequest.objects.filter(pk=req_id).first()
     if not v_request:
-        return render(request, 'pdm/error.html', {"error": {"type": "Not Found", "code": 404, "message": "Request not found"}})
+        return render(request, 'pdm/error.html', {"error": {"type": "Not Found", "code": 404, "message": "Request not found"}}, status=404)
     if action not in actions:
-        return render(request, 'pdm/error.html', {"error": {"type": "Bad Request", "code": 400, "message": "Invalid action"}})
+        return render(request, 'pdm/error.html', {"error": {"type": "Bad Request", "code": 400, "message": "Invalid action"}}, status=400)
     if (v_request.approved or v_request.denied) and action != "revoke":
-        return render(request, 'pdm/error.html', {"error": {"type": "Bad Request", "code": 400, "message": "Request already processed"}})
+        return render(request, 'pdm/error.html', {"error": {"type": "Bad Request", "code": 400, "message": "Request already processed"}}, status=400)
     if action == "approve":
         v_request.approved = True
         v_request.processed_by = request.user

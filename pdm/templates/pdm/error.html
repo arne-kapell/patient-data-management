@@ -1,6 +1,7 @@
 {% extends 'pdm/main.html' %}
 
-{% block title %}Error: {{ error.type }} ({{ error.code }}){% endblock %}
+{% block title %}Error{% endblock %}
 {% block content %}
+<h2>{{ error.type }} ({{ error.code }})</h2>
 <p>{{ error.message }}</p>
 {% endblock %}

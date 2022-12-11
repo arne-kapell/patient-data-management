@@ -1,6 +1,6 @@
 {% extends 'pdm/main.html' %}
 
-{% block title %} Personal information of {{ user.email }} {% endblock %}
+{% block title %} Personal information of {{ user.tag_line }} {% endblock %}
 
 {% block style %}
 #personal_info {
@@ -21,7 +21,7 @@
 {% endblock %}
 
 {% block content %}
-<h2>Personal information of {{ user.first_name }} {{ user.last_name }}</h2>
+<h2>My Profile</h2>
 <div id="personal_info">
     <div><span>Date of birth: </span><span>{{ user.birth_date }}</span></div>
     <div><span>Biological sex: </span><span>{{ user.sex }}</span></div>

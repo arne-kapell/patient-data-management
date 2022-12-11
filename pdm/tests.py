@@ -1,8 +1,8 @@
 import datetime
 import uuid
-from django.test import TestCase, SimpleTestCase, TransactionTestCase, LiveServerTestCase
-
-from pdm.models import AccessRequest, User
+from django.test import TestCase, SimpleTestCase, TransactionTestCase, LiveServerTestCase, Client
+from django.core.files.uploadedfile import SimpleUploadedFile
+from pdm.models import AccessRequest, User, Document
 
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -99,36 +99,34 @@ class LoginTestCase(TransactionTestCase):
             self.assertFalse(user.verified)
 
 
-class StressTestTokenGenerator(TestCase):
-    def test_token_generator_with_verification_endpoint(self):
-        """Test token generator with verification endpoint"""
-        for _ in range(100):
-            user = User.objects.create_user(
-                email=uuid.uuid4().hex + '@test.domain', password=uuid.uuid4().hex)
-            token = default_token_generator.make_token(user)
-            user_id_b64 = urlsafe_base64_encode(force_bytes(user.pk))
-            response = self.client.get(
-                f"/accounts/verify/{user_id_b64}/{token}")
-            self.assertEqual(response.status_code, 200)
-            user = User.objects.get(email=user.email)
-            self.assertTrue(user.verified)
-            user.delete()
+# class StressTestTokenGenerator(TestCase):
+#     def test_token_generator_with_verification_endpoint(self):
+#         """Test token generator with verification endpoint"""
+#         for _ in range(100):
+#             user = User.objects.create_user(
+#                 email=uuid.uuid4().hex + '@test.domain', password=uuid.uuid4().hex)
+#             token = default_token_generator.make_token(user)
+#             user_id_b64 = urlsafe_base64_encode(force_bytes(user.pk))
+#             response = self.client.get(
+#                 f"/accounts/verify/{user_id_b64}/{token}")
+#             self.assertEqual(response.status_code, 200)
+#             user = User.objects.get(email=user.email)
+#             self.assertTrue(user.verified)
+#             user.delete()
 
 
 class AccessRequestTestCase(TestCase):
     def setUp(self):
-        self.user_a = {
+        self.user_a_creds = {
             'email': uuid.uuid4().hex + '@test.domain',
             'password': uuid.uuid4().hex
         }
-        self.user_b = {
-            'email': uuid.uuid4().hex + '@test.domain',
+        self.user_b_creds = {
+            'email': uuid.uuid4().hex + '@test2.domain',
             'password': uuid.uuid4().hex
         }
-        self.user_a = User.objects.create_user(
-            self.user_a['email'], self.user_a['password'])
-        self.user_b = User.objects.create_user(
-            self.user_b['email'], self.user_b['password'])
+        self.user_a = User.objects.create_user(**self.user_a_creds)
+        self.user_b = User.objects.create_user(**self.user_b_creds)
 
     def test_access_request_creation(self):
         """Test access request creation"""
@@ -140,6 +138,138 @@ class AccessRequestTestCase(TestCase):
         self.assertEqual(request.requested_by, self.user_a)
         self.assertFalse(request.approved)
         self.assertFalse(request.denied)
-        request.delete()
         self.user_a.delete()
-        self.user_b.delete()
+        self.client.logout()
+        request.delete()
+    
+    
+    def test_uploadFileTest(self):
+        self.assertTrue(self.client.login(**self.user_a_creds))
+        file = SimpleUploadedFile("file.pdf", b"file_content", content_type="application/pdf")
+        response = self.client.post('/upload/', {'form': {'file': file}})
+        self.assertEqual(response.status_code, 200)
+        self.client.logout()
+
+    
+    def test_viewOwnDocument(self):
+        self.assertTrue(self.client.login(**self.user_a_creds))
+        doc = Document.objects.create(owner=self.user_a, file=SimpleUploadedFile("file.pdf", b"file_content", content_type="application/pdf"))
+        response = self.client.get("/preview/" + str(doc.uid))
+        self.assertEqual(response.status_code, 200)
+        self.client.logout()
+    
+    def test_viewSomeoneElsesDocument(self):
+        """T1, T3: Test view someone else's document without permission"""
+        self.assertTrue(self.client.login(**self.user_a_creds))
+        doc = Document.objects.create(owner=self.user_a, file=SimpleUploadedFile("file.pdf", b"file_content", content_type="application/pdf"))
+        self.client.logout()
+        self.assertTrue(self.client.login(**self.user_b_creds))
+        response = self.client.get("/preview/" + str(doc.uid))
+        self.assertEqual(response.status_code, 403)
+        self.client.logout()
+
+
+
+class ProfileDataTestcase(LiveServerTestCase):
+    def setUp(self):
+        self.credentials = {
+            'email': uuid.uuid4().hex + '@test.domain',
+            'password': uuid.uuid4().hex
+        }
+        self.user = User.objects.create_user(
+            self.credentials['email'], self.credentials['password'])
+        self.user.first_name = 'Max'
+        self.user.last_name = 'Mustermann'
+        self.user.save()
+        self.client = Client()
+    
+    def test_profile_data_with_login(self):
+        """T1, T2: Test profile data with login"""
+        self.assertTrue(self.client.login(**self.credentials))
+        response = self.client.get('/profile/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['user'].first_name, 'Max')
+        self.assertEqual(response.context['user'].last_name, 'Mustermann')
+        self.client.logout()
+    
+    def test_profile_data_without_login(self):
+        """T1, T2: Test profile data without login"""
+        response = self.client.get('/profile/')
+        self.assertEqual(response.url, '/accounts/login/?next=/profile/')
+
+class SQLInjectionTestCase(TestCase):
+    def setUp(self):
+        self.credentials = {
+            'email': uuid.uuid4().hex + '@test.domain',
+            'password': uuid.uuid4().hex
+        }
+        self.user = User.objects.create_user(**self.credentials)
+        self.client = Client()
+    
+    def test_sql_injection(self):
+        """T5: Test SQL injection with document preview"""
+        self.assertTrue(self.client.login(**self.credentials))
+        doc = Document.objects.create(owner=self.user, file=SimpleUploadedFile("file.pdf", b"file_content", content_type="application/pdf"))
+        response = self.client.get("/preview/" + str(doc.uid) + "' OR 1=1")
+        self.assertEqual(response.status_code, 400)
+        self.client.logout()
+
+class XSSInjectionTestCase(LiveServerTestCase):
+    def setUp(self):
+        self.credentials = {
+            'email': uuid.uuid4().hex + '@test.domain',
+            'password': uuid.uuid4().hex
+        }
+        self.user = User.objects.create_user(**self.credentials)
+        self.client = Client()
+    
+    def test_xss_injection(self):
+        """T7: Test XSS injection with document description"""
+        self.assertTrue(self.client.login(**self.credentials))
+        Document.objects.create(owner=self.user, file=SimpleUploadedFile("file.pdf", b"file_content", content_type="application/pdf"), description="<script>alert('XSS')</script>")
+        response = self.client.get("/docs/")
+        self.assertNotContains(response, "<script>alert('XSS')</script>")
+        self.client.logout()
+
+class StressTestDatabase(LiveServerTestCase):
+    def setUp(self):
+        self.credentials = {
+            'email': uuid.uuid4().hex + '@test.domain',
+            'password': uuid.uuid4().hex
+        }
+        self.user = User.objects.create_user(**self.credentials)
+        self.client = Client()
+    
+    def test_stress_test_database(self):
+        """T8: Test stress test database"""
+        self.assertTrue(self.client.login(**self.credentials))
+        for _ in range(1000):
+            Document.objects.create(owner=self.user, file=SimpleUploadedFile("file.pdf", b"file_content", content_type="application/pdf"))
+        self.client.logout()
+
+class TestAdminLogin(LiveServerTestCase):
+    def setUp(self):
+        self.credentials = {
+            'email': uuid.uuid4().hex + '@test.domain',
+            'password': uuid.uuid4().hex
+        }
+        self.user = User.objects.create_user(**self.credentials)
+        self.client = Client()
+    
+    def test_admin_login(self):
+        """T9: Test admin login"""
+        self.assertTrue(self.client.login(**self.credentials))
+        response = self.client.get('/admin/')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/admin/login/?next=/admin/')
+        self.client.logout()
+    
+    def test_admin_login_with_superuser(self):
+        """T9: Test admin login with superuser"""
+        self.user.is_superuser = True
+        self.user.is_staff = True
+        self.user.save()
+        self.assertTrue(self.client.login(**self.credentials))
+        response = self.client.get('/admin/')
+        self.assertEqual(response.status_code, 200)
+        self.client.logout()
