@@ -15,7 +15,7 @@ class UserTestCase(TestCase):
             (uuid.uuid4().hex + '@test.domain', uuid.uuid4().hex) for _ in range(10)]
 
     def test_user_creation(self):
-        """Test user creation and deletion"""
+        """FT1: Test user creation and deletion"""
         for email, password in self.credentials:
             user = User.objects.create_user(email, password)
             self.assertEqual(user.email, email)
@@ -29,7 +29,7 @@ class UserTestCase(TestCase):
             self.assertFalse(User.objects.filter(email=email).exists())
 
     def test_user_creation_with_role(self):
-        """Test user creation with role (doctor, verificator)"""
+        """FT1: Test user creation with role (doctor, verificator)"""
         for email, password in self.credentials[:2]:
             user = User.objects.create_user(email, password, role=User.DOCTOR)
             self.assertEqual(user.role, User.DOCTOR)
@@ -46,7 +46,7 @@ class UserTestCase(TestCase):
 
 class RoleTestCase(SimpleTestCase):
     def test_roles(self):
-        """Test roles"""
+        """FT2: Test roles"""
         self.assertEqual(User.PATIENT, 1)
         self.assertEqual(User.DOCTOR, 2)
         self.assertEqual(User.VERIFICATOR, 3)
@@ -65,7 +65,7 @@ class LoginTestCase(TransactionTestCase):
             email, password) for email, password in self.credentials]
 
     def test_login(self):
-        """Test simple login and logout"""
+        """FT3: Test simple login and logout"""
         for email, password in self.credentials:
             self.client.login(email=email, password=password)
             self.assertTrue(self.client.session.get('_auth_user_id'))
@@ -73,7 +73,7 @@ class LoginTestCase(TransactionTestCase):
             self.assertFalse(self.client.session.get('_auth_user_id'))
 
     def test_mail_verification(self):
-        """Test mail verification"""
+        """FT4: Test mail verification"""
         for user in self.users:
             user = User.objects.get(email=user.email)
             self.assertFalse(user.verified)
@@ -86,7 +86,7 @@ class LoginTestCase(TransactionTestCase):
             self.assertTrue(user.verified)
 
     def test_mail_verification_with_wrong_token(self):
-        """Test mail verification with wrong token"""
+        """FT4: Test mail verification with wrong token"""
         for user in self.users:
             user = User.objects.get(email=user.email)
             self.assertFalse(user.verified)
@@ -129,7 +129,7 @@ class AccessRequestTestCase(TestCase):
         self.user_b = User.objects.create_user(**self.user_b_creds)
 
     def test_access_request_creation(self):
-        """Test access request creation"""
+        """FT5: Test access request creation"""
         self.client.login(email=self.user_a.email,
                           password=self.user_a.password)
         request = AccessRequest.objects.create(
@@ -144,18 +144,24 @@ class AccessRequestTestCase(TestCase):
     
     
     def test_uploadFileTest(self):
+        """FT6: Test file upload"""
         self.assertTrue(self.client.login(**self.user_a_creds))
         file = SimpleUploadedFile("file.pdf", b"file_content", content_type="application/pdf")
-        response = self.client.post('/upload/', {'form': {'file': file}})
-        self.assertEqual(response.status_code, 200)
+        response = self.client.post('/upload/', {'file': file})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Document.objects.filter(owner=self.user_a).count(), 1)
         self.client.logout()
 
     
     def test_viewOwnDocument(self):
+        """FT6: Test view own document and delete it"""
         self.assertTrue(self.client.login(**self.user_a_creds))
         doc = Document.objects.create(owner=self.user_a, file=SimpleUploadedFile("file.pdf", b"file_content", content_type="application/pdf"))
         response = self.client.get("/preview/" + str(doc.uid))
         self.assertEqual(response.status_code, 200)
+        response = self.client.get("/delete/" + str(doc.uid))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Document.objects.filter(owner=self.user_a).count(), 0)
         self.client.logout()
     
     def test_viewSomeoneElsesDocument(self):

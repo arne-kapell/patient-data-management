@@ -1,5 +1,5 @@
-- [ ] Tests implementieren und Ergebnissse dokumentieren (Testplan)
-- [ ] Implementierte Tests dokumentieren
+- [x] Tests implementieren und Ergebnissse dokumentieren (Testplan)
+- [x] Implementierte Tests dokumentieren
 - [x] GitLeaks dokumentieren
 - [x] Docker Volumes dokumentieren
 - [x] SSL-Verbindungen veranschaulichen (struktur)
