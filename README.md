@@ -47,6 +47,13 @@ Zusätzlich wird eine lokale traefik-Instanz (als sog. "Reverse Proxy") benötig
 
 *adminer* als leichtgewichtiges DB-Management-Tool wird in der Produktivumgebung nicht gestartet, dafür jedoch ein Backup-Service, der die PostgreSQL-Datenbank automatisch in regelmäßigen Abständen sichert.
 
+### Anlegen eines Admin-Benutzers
+Vorausgesetzt man hat die Anwendung mit `docker-compose` gestartet, lässt sich ein Admin-Benutzer mit folgendem Befehl anlegen:
+```bash
+docker-compose exec django python manage.py createsuperuser
+```
+*Erklärung:* `docker-compose exec` führt den Befehl `python manage.py createsuperuser` in dem Container `django` aus. Der Container `django` ist der Django-Server, der die Anwendung bereitstellt. Der Befehl `createsuperuser` erstellt einen neuen Benutzer mit Admin-Rechten.
+
 ## Architektur und Bedrohungsanalyse
 ---
 ![](slides/architektur.drawio.svg)
