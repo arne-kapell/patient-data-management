@@ -2,6 +2,8 @@
 [![gitleaks (Secret Scanner)](https://github.com/arne-kapell/patient-data-management/actions/workflows/gitleaks.yml/badge.svg)](https://github.com/arne-kapell/patient-data-management/actions/workflows/gitleaks.yml)
 [![CodeQL](https://github.com/arne-kapell/patient-data-management/actions/workflows/codeql.yml/badge.svg)](https://github.com/arne-kapell/patient-data-management/actions/workflows/codeql.yml)
 # Patient Data Management System
+**Repository auf GitHub:** [patient-data-management](https://github.com/arne-kapell/patient-data-management)
+
 Webanwendung zur Verwaltung von persönlichen, medizinischen Daten.
 
 Features:
