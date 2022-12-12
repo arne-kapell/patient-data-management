@@ -22,25 +22,15 @@
 
 {% block content %}
 <h2>My Profile</h2>
+<span>{{ user.tag_line }} ({% if user.role == 1 %}Patient{% elif user.role == 2 %}Doctor{% elif user.role == 3 %}Verificator{% else %}HACKER{% endif %})</span>
 <div id="personal_info">
     <div><span>Date of birth: </span><span>{{ user.birth_date }}</span></div>
-    <div><span>Biological sex: </span><span>{{ user.sex }}</span></div>
+    <div><span>Sex: </span><span>{% if user.sex == 'm' %}Male{% elif user.sex == 'f' %}Female{% elif user.sex == 'd' %}Diverse{% else %}Unknown{% endif %}</span></div>
     <div><span>Phone number: </span><span>{{ user.phone }}</span></div>
-    <div><span>Country: </span><span>{{ user.country }}</span></div>
+    <div><span>Address: </span><span>{{ user.street_name }} {{ user.street_number }}</span></div>
     <div><span>Postal code: </span><span>{{ user.postal_code }}</span></div>
     <div><span>City: </span><span>{{ user.city }}</span></div>
-    <div><span>Street name: </span><span>{{ user.street_name }}</span></div>
-    <div><span>Street number: </span><span>{{ user.street_number }}</span></div>
-    {% if user.role == 1 %}
-        <div><span>Role: </span><span>Patient</span></div>
-    {% endif %}
-    {% if user.role == 2 %}
-        <div><span>Role: </span><span>Doctor</span></div>
-    {% endif %}
-    {% if user.role == 3 %}
-        <div><span>Role: </span><span>Verificator</span></div>
-    {% endif %}
-
+    <div><span>Country: </span><span>{{ user.country }}</span></div>
 </div>
 <p>
     <a href="/profile/edit/"><button>Edit</button></a>
