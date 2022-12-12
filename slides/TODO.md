@@ -3,9 +3,8 @@
 - [x] GitLeaks dokumentieren
 - [x] Docker Volumes dokumentieren
 - [x] SSL-Verbindungen veranschaulichen (struktur)
-- [ ] PRÄSENTATION
-  - [ ] Top10-Abdeckung
-  - [ ] Modulstruktur
-  - [-] Werkzeuge
+- [-] PRÄSENTATION
+  - [x] Modulstruktur
+  - [x] Werkzeuge
   - [ ] Demo (Vorbereitungen: Demo-user, etc.)
-  - [ ] Security-Features
+  - [x] Security-Features

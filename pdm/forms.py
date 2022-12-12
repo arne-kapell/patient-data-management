@@ -1,4 +1,5 @@
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, AuthenticationForm, PasswordChangeForm, PasswordResetForm, SetPasswordForm
+from django.core.validators import RegexValidator
 from django.conf import settings
 from django import forms
 from django.utils.translation import gettext_lazy as _
@@ -23,6 +24,31 @@ class CustomUserChangeForm(UserChangeForm):
 
 
 class RegistrationForm(UserCreationForm):
+    email = forms.EmailField(required=True)
+    password1 = forms.CharField(widget=forms.PasswordInput(
+        attrs={'placeholder': 'Password'}), required=True)
+    password2 = forms.CharField(widget=forms.PasswordInput(
+        attrs={'placeholder': 'Repeat Password'}), required=True)
+    first_name = forms.CharField(required=True)
+    last_name = forms.CharField(required=True)
+    birth_date = forms.DateField(widget=forms.DateInput(
+        attrs={'type': 'date'}), required=True)
+    sex = forms.ChoiceField(choices=[
+        ("", ""),
+        ("m", "Male"),
+        ("f", "Female"),
+        ("d", "Diverse")
+    ], validators=[RegexValidator(regex=r'^[mfd]$', message="Please select a valid sex")], required=True)
+    phone = forms.CharField(required=True, validators=[
+        RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")], widget=forms.TextInput(attrs={'placeholder': '+999999999'}))
+    country = forms.CharField(required=True, validators=[
+        RegexValidator(regex=r'^[A-Z]{2}$', message="Country must be entered in the format: 'XX'.")], widget=forms.TextInput(attrs={'placeholder': 'e.g. DE'}))
+    postal_code = forms.CharField(required=True, validators=[
+        RegexValidator(regex=r'^[0-9]{5}$', message="Postal code must be entered in the format: '99999'.")], widget=forms.TextInput(attrs={'placeholder': 'e.g. 12345'}))
+    city = forms.CharField(required=True)
+    street_name = forms.CharField(required=True)
+    street_number = forms.CharField(required=True)
+
     class Meta:
         model = User
         fields = (
@@ -44,9 +70,12 @@ class RegistrationForm(UserCreationForm):
 
 class UserInfoEditForm(forms.ModelForm):
     email = forms.EmailField(required=False)
-    phone = forms.CharField(required=False)
-    country = forms.CharField(required=False)
-    postal_code = forms.CharField(required=False)
+    phone = forms.CharField(required=False, validators=[
+        RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")], widget=forms.TextInput(attrs={'placeholder': '+999999999'}))
+    country = forms.CharField(required=False, validators=[
+        RegexValidator(regex=r'^[A-Z]{2}$', message="Country must be entered in the format: 'XX'.")], widget=forms.TextInput(attrs={'placeholder': 'e.g. DE'}))
+    postal_code = forms.CharField(required=False, validators=[
+        RegexValidator(regex=r'^[0-9]{5}$', message="Postal code must be entered in the format: '99999'.")], widget=forms.TextInput(attrs={'placeholder': 'e.g. 12345'}))
     city = forms.CharField(required=False)
     street_name = forms.CharField(required=False)
     street_number = forms.CharField(required=False)

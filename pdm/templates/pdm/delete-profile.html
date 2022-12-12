@@ -31,7 +31,7 @@
 </div>
 {% endif %}
 
-<h2>Delete user: {{ user.email }}</h2>
+<h2>Delete user: {{ user.tag_line }}</h2>
 <form id="del_acc" method="post" action="{% url 'delete-profile' %}">
 {% csrf_token %}
 <div>

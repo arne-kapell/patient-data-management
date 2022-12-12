@@ -148,6 +148,7 @@ LOGIN_URL = URL_PREFIX + "/accounts/login/"
 LOGIN_REDIRECT_URL = LOGOUT_REDIRECT_URL = 'index'
 
 SESSION_COOKIE_AGE = 30 * 60  # in seconds (30 minutes)
+SESSION_COOKIE_SECURE = not bool(int(os.getenv("DEBUG", default=0)))
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # Default primary key field type

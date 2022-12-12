@@ -7,6 +7,20 @@ Webanwendung zur Verwaltung von persönlichen, medizinischen Daten.
 Features:
 - Dokumentenverwaltung (Upload, Download, Löschen) inkl. In-Browser-Vorschau
 - Zugriffs-Freigabe für Angehörige und Ärzte
+---
+Sicherheits-Fokus:
+- Dokumenten-Zugriff-Anfragen zeitlich begrenzt (max. 1 Jahr)
+- Zugriffs-Anfragen können abgelehnt und vom Steller zurückgezogen werden
+- Dokumente können nur vom Eigentümer und einem Arzt überschrieben werden
+- Löschen eines Benutzers löscht auch alle Dokumente und Zugriffs-Anfragen (Cascade)
+- Datenbank-Backup (automatisch)
+## Dokumente & Präsentationen
+---
+- Anforderungen bzw. Aufgabenstellung: [PDF](slides/Laborarbeit2022AufgabeSichereSysteme.pdf)
+- Sicherheitsanforderungen & Bedrohungsanalyse: [HTML](slides/abgabe01.html) | [PDF](slides/abgabe01.pdf)
+- Risiko-Register: [DOCX](slides/RisikoRegisterAbgabe.docx)
+- Abschlusspräsentation: [HTML](slides/abschlusspraesi.html) | [PDF](slides/abschlusspraesi.pdf)
+- Diese Dokumentation: [MD](README.md) | [PDF](README.pdf)
 
 ## Deployment
 ---
@@ -36,18 +50,53 @@ Zusätzlich wird eine lokale traefik-Instanz (als sog. "Reverse Proxy") benötig
 ## Architektur und Bedrohungsanalyse
 ---
 ![](slides/architektur.drawio.svg)
+### Schutzziele
+| Asset                      | Vertraulichkeit | Integrität | Verfügbarkeit |
+| :------------------------- | :-------------: | :--------: | :-----------: |
+| **A01**: Gesundheits-Daten |      X(1)       |    X(1)    |     X(2)      |
+| **A02**: Persönl. Daten    |      X(1)       |    X(2)    |     X(3)      |
+| **A03**: Anmelde-Daten     |      X(1)       |    X(2)    |     X(3)      |
+| **A04**: Session-Daten     |      X(1)       |    X(3)    |     X(2)      |
+| **A05**: Log-Daten         |      X(2)       |    X(1)    |     X(3)      |
 
-## Präsentationen
+### Risiko-Register
+siehe [Risiko-Register](slides/RisikoRegisterAbgabe.docx)
+## Architektur-Entscheidungen
 ---
-0. [Anforderungen bzw. Aufgabenstellung](slides/Laborarbeit2022AufgabeSichereSysteme.pdf)
-1. [Sicherheitsanforderungen & Bedrohungsanalyse](slides/abgabe01.html)
-2. [Abschlusspräsentation](slides/abschlusspraesi.html)
+### Django
+Django ist ein Python-Framework, welches sich für die Entwicklung von Webanwendungen eignet. Es bietet eine Vielzahl an Features, die für die Entwicklung einer solchen Anwendung notwendig sind. Dazu gehören unter anderem:
+- Benutzerverwaltung
+- Berechtigungsverwaltung
+- Datenbankanbindung
+- Formulare
+- Templates
 
+Auch Sicherheitstechnisch bietet Django eine Vielzahl an Features, die für die Entwicklung einer solchen Anwendung notwendig sind. Dazu gehören unter anderem:
+- CSRF-Schutz
+- SQL-Injection-Schutz
+- XSS-Schutz
+- Session-Managment
+- Passwort-Hashing
+
+Folgende Django-Erweitungen wurden verwendet:
+- whitenoise: Statische Dateien (CSS, JS, Bilder) werden vom Django-Server ausgeliefert und müssen nicht auf einem separaten Webserver (z.B. nginx) gehostet werden.
+- django_encrypted_files: Dateien werden beim Upload verschlüsselt und beim Download entschlüsselt. Als Algorithmus wird AES verwendet.
+
+### PostgreSQL
+PostgreSQL ist eine relationale Datenbank, die für die Speicherung von Daten verwendet wird. Neben großer Verbreitung und Stabilität erfüllt sie auch alle Anforderungen, die für die Entwicklung einer solchen Anwendung notwendig sind.
+Vorteile gegenüber anderen Lösungen:
+- Open Source
+- Skalierbarkeit
+- Wiederherstellungsmechanismen
+
+Zusätzlich bietet Django einige Datentypen, die nur in Kombination mit PostgreSQL verwendet werden können. (u.a. `ArrayField` und verschiedene Range-Datentypen)
+
+### Traefik
+Traefik ist ein Reverse Proxy, der für die Bereitstellung von Webanwendungen verwendet wird. Er bietet eine Vielzahl an Features, u.a. automatischer Bezug von SSL-Zertifikaten und automatische Weiterleitung von HTTP auf HTTPS.
 
 ## Testplan
 ---
 ### Funktionale Tests:
----
 | TestID | Typ       | Beschreibung                                                       |
 | -----: | --------- | ------------------------------------------------------------------ |
 |    FT1 | Unit-Test | Benutzer-Erstellung und -Entfernung inklusive Rollen               |
@@ -60,7 +109,6 @@ Zusätzlich wird eine lokale traefik-Instanz (als sog. "Reverse Proxy") benötig
 
 
 ### Security Tests:
----
 | TestID | Typ                        | Beschreibung                                                                                                                                               | Schritte                                                                                                                       | Erwartetes Ergebnis                                                                    |       Status       |
 | -----: | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- | :----------------: |
 |     T1 | Unit-Tests                 | Gesundheits- bzw. persönliche Daten dürfen nur nach erfolgreicher Authentifizierung und nach autorisierung (mit den erforderlichen Rechten) abrufbar sein. | Versuchen, Daten ohne vorherigen Login bzw. mit unautorisiertem Benutzer abzurufen                                             | Blockieren mit Fehlermeldung ohne Daten-Leck                                           | :heavy_check_mark: |
@@ -120,7 +168,7 @@ graph LR
     P2 -->|bestätigt Zugriff / lehnt Zugriff ab| P1 & A
 ```
 
-## CI/CD(GitHub Actions)
+## CI/CD(GitHub Actions) 
 ---
 - [CodeQL](.github/workflows/codeql.yml) (Static Code Analysis)
 - [GitLeaks](.github/workflows/gitleaks.yml) (Secrets Detection)
@@ -137,3 +185,61 @@ Der aktuelle Stand der einzelnen Pipelines ist in den Badges am Anfang dieser *R
 ---
 Daten werden in der containerisierten Anwendung in Docker-Volumes gespeichert. Diese sind Host-spezifisch und halten u.a. die (verschlüsselten) Dokumente und die Rohdaten der Datenbank. Die Datenbank wird regelmäßig gesichert und auf dem Host gespeichert.
 
+## Modulstruktur
+---
+<!-- mermaid diagram for the modules Django (with frontend), PostgreSQL, traefik -->
+```mermaid
+graph LR
+    subgraph Client
+        C[User]
+    end
+    subgraph Django
+        DJ[Frontend & Backend]
+    end
+    subgraph PostgreSQL
+        DB[Database]
+    end
+    subgraph traefik
+        T[Reverse Proxy]
+    end
+    subgraph DB-Backups
+        BA[Backup-Service]
+    end
+    C <-->|HTTPS| T
+    DJ <-->|HTTP| T
+    DJ & BA <-->|PostgreSQL| DB
+```
+
+## Entwicklungs-Wekzeuge
+---
+### Git(Hub)
+Git wurde als Versionskontrollsystem verwendet. Die Entwicklung fand auf einem privaten GitHub-Repository statt.
+Weiterhin wurde GitHub als Plattform für die CI/CD-Pipelines verwendet (GitHub Actions) und auch für Dokumentations-Zwecke.
+### Visual Studio Code
+Als leichtgewichtige IDE wurde Visual Studio Code verwendet. Dieses ist mit den folgenden Erweiterungen ausgestattet:
+- autopep8 (Python Formatter)
+- Django (Django-Syntax-Highlighting)
+- Actions (GitHub Actions)
+### Docker/Podman (Compose)
+Als Containerisierungslösung wurde Docker verwendet. Dabei wurden die beiden Umgebungen (Entwicklung und Produktiv) durch separate Docker-Compose-Dateien abgebildet. Auf dem Produktiv-Server wird Docker als Container-Engine verwendet. Diese lässt sich mittlerweile jedoch auch durch Podman ersetzen. Podman ist eine Open-Source-Alternative zu Docker und kann auch als Container-Engine verwendet werden. Im Entwicklungsumfeld wurde teilweise auch Podman verwendet.
+### Anaconda
+Anaconda diente während der Entwicklung als Python-Umgebung. Es wurde verwendet, um die Python-Abhängigkeiten zu verwalten und die Entwicklungsumgebung zu vereinheitlichen. Die Abhängigkeiten werden in der Datei [requirements.txt](requirements.txt) festgehalten. Als Python-Version wird aktuell Python 3.10.4 verwendet.
+
+## Security-Tools
+---
+Die meisten der folgenden Tools wurden in die CI/CD-Pipelines integriert. Sie werden automatisch ausgeführt und die Ergebnisse werden in den jeweiligen Pipelines angezeigt. (siehe [CI/CD](#cicdgithub-actions))
+### SonarQube
+SonaQube ist ein Open-Source-Tool zur statischen Code-Analyse. Es wird in der CI/CD-Pipeline verwendet, um die Code-Qualität zu überprüfen. Es wäre möglich, zusätzlich auch ein sog. *Quality Gate* einzurichten, welches die Pipeline blockiert, wenn die Code-Qualität nicht ausreichend ist. Dies wurde jedoch nicht umgesetzt.
+
+Haupt-Vorteil ist die tiefgehende Code-Analyse, welche auch sog. *Code Smells* erkennt. Diese sind nicht direkt Fehler, können aber zu Fehlern führen. SonarQube erkennt solche Code Smells und gibt Hinweise, wie diese behoben werden können.
+
+### GitLeaks
+GitLeaks ist ein Open-Source-Tool zur Erkennung von potentiellen Secrets in Git-Repositories. Es wird in der CI/CD-Pipeline verwendet, um die Repository-History auf potentielle Secrets zu scannen. Es ist möglich, sog. *Whitelists* zu erstellen, welche bestimmte Strings als nicht-gefährlich markieren. Dies wurde jedoch nicht umgesetzt.
+
+Haupt-Vorteil ist die Erkennung von potentiellen Secrets, welche nicht in der Repository-History stehen sollten. Dies kann z.B. API-Keys, Passwörter, etc. sein.
+
+### CodeQL
+CodeQL ist ebenfalls Open-Source und dient der statischen Code-Analyse. Es wird in der CI/CD-Pipeline verwendet, um die Code-Qualität zu überprüfen. Die Ergebnisse werden im sog. *Code Scanning* Bereich des GitHub-Repositories angezeigt und können dort eingesehen werden. Dabei werden meist direkt auch die entsprechenden Code-Stellen und mögliche Lösungen angezeigt. Das Tool erkennt  in der Regel auch wenn ein potentieller Fehler behoben wurde und zeigt dies entsprechend an.
+
+### Dependabot
+Dependabot ist ein GitHub-Feature, welches automatisch Pull-Requests erstellt, wenn Abhängigkeiten aktualisiert werden können. Dies ist z.B. der Fall, wenn ein Sicherheits-Update verfügbar ist. Die Pull-Requests werden automatisch erstellt und können dann manuell gemerged werden.

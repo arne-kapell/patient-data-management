@@ -21,19 +21,9 @@ Projekt: Security by Design (Semester 5)
 ---
 <!-- _paginate: false -->
 # Threat Modeling
+<!-- Arne -->
 
 ![bg right:70% contain](architektur.drawio.svg)
-
----
-# Schutzziele
-
-| Asset                      | Vertraulichkeit | Integrität | Verfügbarkeit |
-| :------------------------- | :-------------: | :--------: | :-----------: |
-| **A01**: Gesundheits-Daten |      X(1)       |    X(1)    |     X(2)      |
-| **A02**: Persönl. Daten    |      X(1)       |    X(2)    |     X(3)      |
-| **A03**: Anmelde-Daten     |      X(1)       |    X(2)    |     X(3)      |
-| **A04**: Session-Daten     |      X(1)       |    X(3)    |     X(2)      |
-| **A05**: Log-Daten         |      X(2)       |    X(1)    |     X(3)      |
 
 ---
 # Technologie-Stack
@@ -46,41 +36,26 @@ Projekt: Security by Design (Semester 5)
 ![bg](https://xpertlab.com/wp-content/uploads/2020/06/postgresql-logo-46ba99d4fa05ea7db5e9030184de94fd.png)
 
 ---
-<!-- _class: lead -->
+<!-- _class: lead
 # Risiko-Register
-<!-- TODO -->
 
----
-# Risiko-Register (1/4)
+--- -->
+<!-- # Risiko-Register (1/4)
 
 ![width:5000](r6.png)
 
----
-# Risiko-Register (2/4)
-
-![width:5000](r7.png)
-
----
-# Risiko-Register (3/4)
-
-![width:5000](r8.png)
-
----
-# Risiko-Register (4/4)
-
-![width:5000](r9.png)
-
----
+--- -->
 <!-- _class: lead -->
 # Modulstruktur
 
 ---
-TODO
+![bg contain](modulstruktur.svg)
 
 ---
 <!-- _class: lead -->
 # Werkzeuge
 Entwicklungs-Tools
+<!-- Finn -->
 
 ---
 # Entwicklungs-Tools
@@ -122,16 +97,131 @@ Pipeline für Build, Test und Deployment
 <!-- _class: lead -->
 # Demo
 Projekt und Source-Code (Repository)
----
+<!-- Finn/Arne -->
+
 ---
 <!-- _class: lead -->
 # Tests
 Testplan und Ergebnisse
+<!-- Irina -->
 
 ---
+# Funktionale Tests
+| TestID | Typ     | Beschreibung                                         |
+| -----: | ------- | ---------------------------------------------------- |
+|    FT1 | Unit-T. | Benutzer-Erstellung und -Entfernung inklusive Rollen |
+|    FT2 | Unit-T. | Intigrität des Rollensystems                         |
+|    FT3 | Unit-T. | Login, Logout                                        |
+|    FT4 | Unit-T. | Email-Verifikation                                   |
+|    FT5 | Unit-T. | Erstellen und Entfernen von Zugriffsanfragen         |
+|    FT6 | Unit-T. | Upload, Vorschau und entfernen von Dokumenten        |
+---
+<style scoped>
+table {
+  font-size: 25px;
+}
+</style>
+# Security Tests (1/10)
+| TestID | Typ                        | Beschreibung                                                                                                                                               | Schritte                                                                                                                       | Erwartetes Ergebnis                                                                    |       Status       |
+| -----: | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- | :----------------: |
+|     T1 | Unit-Tests                 | Gesundheits- bzw. persönliche Daten dürfen nur nach erfolgreicher Authentifizierung und nach autorisierung (mit den erforderlichen Rechten) abrufbar sein. | Versuchen, Daten ohne vorherigen Login bzw. mit unautorisiertem Benutzer abzurufen                                             | Blockieren mit Fehlermeldung ohne Daten-Leck                                           | :heavy_check_mark: |
+---
+<style scoped>
+table {
+  font-size: 30px;
+}
+</style>
+# Security Tests (2/10)
+| TestID | Typ                        | Beschreibung                                                                                                                                               | Schritte                                                                                                                       | Erwartetes Ergebnis                                                                    |       Status       |
+| -----: | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- | :----------------: |
+|     T2 | Unit-Tests                 | Persönliche Daten dürfen nur für den jeweiligen Nutzer einsichtbar sein.                                                                                   | Versuchen auf die persönlichen Daten eines anderen Benutzers zuzugreifen                                                       | Blockieren mit Fehlermeldung ohne Daten-Leck                                           | :heavy_check_mark: |
+---
+<style scoped>
+table {
+  font-size: 28px;
+}
+</style>
+# Security Tests (3/10)
+| TestID | Typ                        | Beschreibung                                                                                                                                               | Schritte                                                                                                                       | Erwartetes Ergebnis                                                                    |       Status       |
+| -----: | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- | :----------------: |
+|     T3 | Unit-Test / Manueller Test | Dokumente können nicht von Benutzern ohne erteilte Freigabe eingesehen werden                                                                              | Versuchen durch Umgehung der Freigabe-Bestimmung an Dokumente zu gelangen                                                      | Blockieren mit Fehlermeldung                                                           | :heavy_check_mark: |
+---
+<style scoped>
+table {
+  font-size: 21px;
+}
+</style>
+# Security Tests (4/10)
+| TestID | Typ                        | Beschreibung                                                                                                                                               | Schritte                                                                                                                       | Erwartetes Ergebnis                                                                    |       Status       |
+| -----: | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- | :----------------: |
+|     T4 | Transaktion-Test           | Daten können nicht durch Überwachung des Kommunikations-Kanals exfiltriert werden                                                                          | Abfangen der Datenübertragung mittels Netzwerkmonitoring Tools                                                                 | Alle abgefangenen Dateien/Informationen befinden sich in einem verschlüsselten Zustand | :heavy_check_mark: |
+---
+<style scoped>
+table {
+  font-size: 28px;
+}
+</style>
+# Security Tests (5/10)
+| TestID | Typ                        | Beschreibung                                                                                                                                               | Schritte                                                                                                                       | Erwartetes Ergebnis                                                                    |       Status       |
+| -----: | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- | :----------------: |
+|     T5 | Unit-Test und Pentests     | Zugriff auf Daten in der Datenbank durch SQL Abgfragen erlangen                                                                                            | Zugriff auf Datenbank mitells SQL Injection                                                                                    | Abblocken des Angriffs durch Eingabevalidierung                                        | :heavy_check_mark: |
+---
+<style scoped>
+table {
+  font-size: 23px;
+}
+</style>
+# Security Tests (6/10)
+| TestID | Typ                        | Beschreibung                                                                                                                                               | Schritte                                                                                                                       | Erwartetes Ergebnis                                                                    |       Status       |
+| -----: | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- | :----------------: |
+|     T6 | Manueller-Test             | Zugriff auf Daten in der Datenbank nur mit Autorisierung                                                                                                   | Verbindungsaufbau zur Datenbank ohne gültigen Benutzer bzw. Benutzer mit nötigen Berechtigungen und Versuch Zugang zu erlangen | Verhindern durch Berechtigungsprüfung                                                  | :heavy_check_mark: |
+---
+<style scoped>
+table {
+  font-size: 28px;
+}
+</style>
+# Security Tests (7/10)
+| TestID | Typ                        | Beschreibung                                                                                                                                               | Schritte                                                                                                                       | Erwartetes Ergebnis                                                                    |       Status       |
+| -----: | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- | :----------------: |
+|     T7 | Unit-Tests/Manuelle Tests  | Zugriff durch Ausnutzung typischer Web-Schwachstellen wie CSRF oder XSS nicht möglich                                                                      | Test-Eingaben, etc.                                                                                                            | Restriktives Verhalten der Anwendung ohne Daten preiszugeben                           | :heavy_check_mark: |
+---
+<style scoped>
+table {
+  font-size: 29px;
+}
+</style>
+# Security Tests (8/10)
+| TestID | Typ                        | Beschreibung                                                                                                                                               | Schritte                                                                                                                       | Erwartetes Ergebnis                                                                    |       Status       |
+| -----: | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- | :----------------: |
+|     T8 | Unit-Test  /DDOS           | Datenbank ist vor Ausfall geschützt                                                                                                                        | Durch erhöhte Anzahl an Anfragen Verbindung zur Datenbank kompromittieren                                                      | Ausfallzeit so gering wie möglich (optional auch restriktives Verhalten)               | :heavy_check_mark: |
+---
+<style scoped>
+table {
+  font-size: 28px;
+}
+</style>
+# Security Tests (9/10)
+| TestID | Typ                        | Beschreibung                                                                                                                                               | Schritte                                                                                                                       | Erwartetes Ergebnis                                                                    |       Status       |
+| -----: | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- | :----------------: |
+|     T9 | Unit-Test                  | Administrator Oberfläche nur für Administratoren sichtbar                                                                                                  | Versuchen an Informationen zu gelangen, die nur für Administratoren gedacht sind                                               | Fehlermeldung wegen fehlenden Berechtigungen für den Zugriff                           | :heavy_check_mark: |
+---
+<style scoped>
+table {
+  font-size: 30px;
+}
+</style>
+# Security Tests (10/10)
+| TestID | Typ                        | Beschreibung                                                                                                                                               | Schritte                                                                                                                       | Erwartetes Ergebnis                                                                    |       Status       |
+| -----: | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- | :----------------: |
+|    T10 | Unit-Test                  | Anwendung ist vor Infizierungen durch Dateien geschützt                                                                                                    | Infizierte Datei unter Dokumenten hochladen                                                                                    | Filtern der Datei durch Clam AV                                                        |        :x:         |
+---
 # Secure by Design
-- Top 10 OWASP
-- ...
+- Dokumenten-Zugriff-Anfragen zeitlich begrenzt (max. 1 Jahr)
+- Zugriffs-Anfragen können abgelehnt und vom Steller zurückgezogen werden
+- Dokumente können nur vom Eigentümer und einem Arzt überschrieben werden
+- Löschen eines Benutzers löscht auch alle Dokumente und Zugriffs-Anfragen (Cascade)
+- Datenbank-Backup (automatisch)
 
 ---
 <!-- 
