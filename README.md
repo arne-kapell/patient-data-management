@@ -14,11 +14,13 @@ Sicherheits-Fokus:
 - Dokumente können nur vom Eigentümer und einem Arzt überschrieben werden
 - Löschen eines Benutzers löscht auch alle Dokumente und Zugriffs-Anfragen (Cascade)
 - Datenbank-Backup (automatisch)
-## Präsentationen
+## Dokumente & Präsentationen
 ---
-- [Anforderungen bzw. Aufgabenstellung](slides/Laborarbeit2022AufgabeSichereSysteme.pdf)
-- [Sicherheitsanforderungen & Bedrohungsanalyse](slides/abgabe01.html)
-- [Abschlusspräsentation](slides/abschlusspraesi.html)
+- Anforderungen bzw. Aufgabenstellung: [PDF](slides/Laborarbeit2022AufgabeSichereSysteme.pdf)
+- Sicherheitsanforderungen & Bedrohungsanalyse: [HTML](slides/abgabe01.html) | [PDF](slides/abgabe01.pdf)
+- Risiko-Register: [DOCX](slides/RisikoRegisterAbgabe.docx)
+- Abschlusspräsentation: [HTML](slides/abschlusspraesi.html) | [PDF](slides/abschlusspraesi.pdf)
+- Diese Dokumentation: [MD](README.md) | [PDF](README.pdf)
 
 ## Deployment
 ---

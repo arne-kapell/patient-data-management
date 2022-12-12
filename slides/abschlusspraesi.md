@@ -21,6 +21,7 @@ Projekt: Security by Design (Semester 5)
 ---
 <!-- _paginate: false -->
 # Threat Modeling
+<!-- Arne -->
 
 ![bg right:70% contain](architektur.drawio.svg)
 
@@ -54,6 +55,7 @@ Projekt: Security by Design (Semester 5)
 <!-- _class: lead -->
 # Werkzeuge
 Entwicklungs-Tools
+<!-- Finn -->
 
 ---
 # Entwicklungs-Tools
@@ -95,11 +97,13 @@ Pipeline für Build, Test und Deployment
 <!-- _class: lead -->
 # Demo
 Projekt und Source-Code (Repository)
----
+<!-- Finn/Arne -->
+
 ---
 <!-- _class: lead -->
 # Tests
 Testplan und Ergebnisse
+<!-- Irina -->
 
 ---
 # Funktionale Tests

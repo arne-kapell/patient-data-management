@@ -4,8 +4,7 @@
 - [x] Docker Volumes dokumentieren
 - [x] SSL-Verbindungen veranschaulichen (struktur)
 - [-] PRÄSENTATION
-  - [ ] Top10-Abdeckung
   - [x] Modulstruktur
-  - [-] Werkzeuge
+  - [x] Werkzeuge
   - [ ] Demo (Vorbereitungen: Demo-user, etc.)
   - [x] Security-Features
