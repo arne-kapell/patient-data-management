@@ -416,7 +416,7 @@ def approveOrDeny(request, req_id, action="deny"):
 
 
 @login_required
-@user_passes_test(lambda u: u.role == User.DOCTOR)
+@user_passes_test(lambda u: u.role < 3)
 def deleteRequest(request, req_id):
     access_request = AccessRequest.objects.filter(pk=req_id).first()
     if not access_request:
