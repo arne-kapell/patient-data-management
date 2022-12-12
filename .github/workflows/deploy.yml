@@ -1,6 +1,12 @@
 name: Run tests and deploy to VPS
 
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 env:
   HOST: cloud.arne-kapell.de
