@@ -7,6 +7,18 @@ Webanwendung zur Verwaltung von persönlichen, medizinischen Daten.
 Features:
 - Dokumentenverwaltung (Upload, Download, Löschen) inkl. In-Browser-Vorschau
 - Zugriffs-Freigabe für Angehörige und Ärzte
+---
+Sicherheits-Fokus:
+- Dokumenten-Zugriff-Anfragen zeitlich begrenzt (max. 1 Jahr)
+- Zugriffs-Anfragen können abgelehnt und vom Steller zurückgezogen werden
+- Dokumente können nur vom Eigentümer und einem Arzt überschrieben werden
+- Löschen eines Benutzers löscht auch alle Dokumente und Zugriffs-Anfragen (Cascade)
+- Datenbank-Backup (automatisch)
+## Präsentationen
+---
+- [Anforderungen bzw. Aufgabenstellung](slides/Laborarbeit2022AufgabeSichereSysteme.pdf)
+- [Sicherheitsanforderungen & Bedrohungsanalyse](slides/abgabe01.html)
+- [Abschlusspräsentation](slides/abschlusspraesi.html)
 
 ## Deployment
 ---
@@ -36,7 +48,17 @@ Zusätzlich wird eine lokale traefik-Instanz (als sog. "Reverse Proxy") benötig
 ## Architektur und Bedrohungsanalyse
 ---
 ![](slides/architektur.drawio.svg)
+### Schutzziele
+| Asset                      | Vertraulichkeit | Integrität | Verfügbarkeit |
+| :------------------------- | :-------------: | :--------: | :-----------: |
+| **A01**: Gesundheits-Daten |      X(1)       |    X(1)    |     X(2)      |
+| **A02**: Persönl. Daten    |      X(1)       |    X(2)    |     X(3)      |
+| **A03**: Anmelde-Daten     |      X(1)       |    X(2)    |     X(3)      |
+| **A04**: Session-Daten     |      X(1)       |    X(3)    |     X(2)      |
+| **A05**: Log-Daten         |      X(2)       |    X(1)    |     X(3)      |
 
+### Risiko-Register
+siehe [Risiko-Register](slides/RisikoRegisterAbgabe.docx)
 ## Architektur-Entscheidungen
 ---
 ### Django
@@ -69,14 +91,6 @@ Zusätzlich bietet Django einige Datentypen, die nur in Kombination mit PostgreS
 
 ### Traefik
 Traefik ist ein Reverse Proxy, der für die Bereitstellung von Webanwendungen verwendet wird. Er bietet eine Vielzahl an Features, u.a. automatischer Bezug von SSL-Zertifikaten und automatische Weiterleitung von HTTP auf HTTPS.
-
-
-## Präsentationen
----
-0. [Anforderungen bzw. Aufgabenstellung](slides/Laborarbeit2022AufgabeSichereSysteme.pdf)
-1. [Sicherheitsanforderungen & Bedrohungsanalyse](slides/abgabe01.html)
-2. [Abschlusspräsentation](slides/abschlusspraesi.html)
-
 
 ## Testplan
 ---
