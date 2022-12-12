@@ -26,9 +26,9 @@ class CustomUserChangeForm(UserChangeForm):
 class RegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True)
     password1 = forms.CharField(widget=forms.PasswordInput(
-        attrs={'placeholder': 'Password'}), required=True)
+        attrs={'placeholder': 'Password'}), required=True, label="Password")
     password2 = forms.CharField(widget=forms.PasswordInput(
-        attrs={'placeholder': 'Repeat Password'}), required=True)
+        attrs={'placeholder': 'Repeat Password'}), required=True, label="Repeat Password")
     first_name = forms.CharField(required=True)
     last_name = forms.CharField(required=True)
     birth_date = forms.DateField(widget=forms.DateInput(
