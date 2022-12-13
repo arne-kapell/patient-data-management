@@ -36,15 +36,6 @@ Projekt: Security by Design (Semester 5)
 ![bg](https://xpertlab.com/wp-content/uploads/2020/06/postgresql-logo-46ba99d4fa05ea7db5e9030184de94fd.png)
 
 ---
-<!-- _class: lead
-# Risiko-Register
-
---- -->
-<!-- # Risiko-Register (1/4)
-
-![width:5000](r6.png)
-
---- -->
 <!-- _class: lead -->
 # Modulstruktur
 
