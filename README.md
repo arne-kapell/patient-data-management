@@ -1,4 +1,5 @@
 [![Run tests and deploy to VPS](https://github.com/arne-kapell/patient-data-management/actions/workflows/deploy.yml/badge.svg)](https://github.com/arne-kapell/patient-data-management/actions/workflows/deploy.yml)
+[![Quality Gate Status](https://sonarqube.arne-kapell.de/api/project_badges/measure?project=patient-data-management&metric=alert_status&token=261a876bf7eb479b6f365a35dfb44e1879fb1414)](https://sonarqube.arne-kapell.de/dashboard?id=patient-data-management)
 [![gitleaks (Secret Scanner)](https://github.com/arne-kapell/patient-data-management/actions/workflows/gitleaks.yml/badge.svg)](https://github.com/arne-kapell/patient-data-management/actions/workflows/gitleaks.yml)
 [![CodeQL](https://github.com/arne-kapell/patient-data-management/actions/workflows/codeql.yml/badge.svg)](https://github.com/arne-kapell/patient-data-management/actions/workflows/codeql.yml)
 # Patient Data Management System

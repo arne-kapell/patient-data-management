@@ -36,15 +36,6 @@ Projekt: Security by Design (Semester 5)
 ![bg](https://xpertlab.com/wp-content/uploads/2020/06/postgresql-logo-46ba99d4fa05ea7db5e9030184de94fd.png)
 
 ---
-<!-- _class: lead
-# Risiko-Register
-
---- -->
-<!-- # Risiko-Register (1/4)
-
-![width:5000](r6.png)
-
---- -->
 <!-- _class: lead -->
 # Modulstruktur
 
@@ -110,7 +101,7 @@ Testplan und Ergebnisse
 | TestID | Typ     | Beschreibung                                         |
 | -----: | ------- | ---------------------------------------------------- |
 |    FT1 | Unit-T. | Benutzer-Erstellung und -Entfernung inklusive Rollen |
-|    FT2 | Unit-T. | Intigrität des Rollensystems                         |
+|    FT2 | Unit-T. | Integrität des Rollensystems                         |
 |    FT3 | Unit-T. | Login, Logout                                        |
 |    FT4 | Unit-T. | Email-Verifikation                                   |
 |    FT5 | Unit-T. | Erstellen und Entfernen von Zugriffsanfragen         |
@@ -124,7 +115,7 @@ table {
 # Security Tests (1/10)
 | TestID | Typ                        | Beschreibung                                                                                                                                               | Schritte                                                                                                                       | Erwartetes Ergebnis                                                                    |       Status       |
 | -----: | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- | :----------------: |
-|     T1 | Unit-Tests                 | Gesundheits- bzw. persönliche Daten dürfen nur nach erfolgreicher Authentifizierung und nach autorisierung (mit den erforderlichen Rechten) abrufbar sein. | Versuchen, Daten ohne vorherigen Login bzw. mit unautorisiertem Benutzer abzurufen                                             | Blockieren mit Fehlermeldung ohne Daten-Leck                                           | :heavy_check_mark: |
+|     T1 | Unit-Tests                 | Gesundheits- bzw. persönliche Daten dürfen nur nach erfolgreicher Authentifizierung und Autorisierung (mit den erforderlichen Rechten) abrufbar sein. | Versuchen, Daten ohne vorherigen Login bzw. mit unautorisiertem Benutzer abzurufen                                             | Blockieren mit Fehlermeldung ohne Daten-Leck                                           | :heavy_check_mark: |
 ---
 <style scoped>
 table {
@@ -164,7 +155,7 @@ table {
 # Security Tests (5/10)
 | TestID | Typ                        | Beschreibung                                                                                                                                               | Schritte                                                                                                                       | Erwartetes Ergebnis                                                                    |       Status       |
 | -----: | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- | :----------------: |
-|     T5 | Unit-Test und Pentests     | Zugriff auf Daten in der Datenbank durch SQL Abgfragen erlangen                                                                                            | Zugriff auf Datenbank mitells SQL Injection                                                                                    | Abblocken des Angriffs durch Eingabevalidierung                                        | :heavy_check_mark: |
+|     T5 | Unit-Test und Pentests     | Zugriff auf Daten in der Datenbank nur durch genau spezifizerte Zugänge                                                                                            | Zugriff auf Datenbank mittels SQL Injection                                                                                    | Abblocken des Angriffs durch Eingabevalidierung                                        | :heavy_check_mark: |
 ---
 <style scoped>
 table {
